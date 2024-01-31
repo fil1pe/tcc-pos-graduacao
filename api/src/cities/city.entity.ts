@@ -8,6 +8,6 @@ export class City {
   @Column()
   name: string
 
-  @Column()
+  @Column({ type: 'char', length: 2 })
   uf: string
 }
