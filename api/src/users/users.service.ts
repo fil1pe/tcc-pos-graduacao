@@ -5,6 +5,7 @@ import { InjectRepository } from '@nestjs/typeorm'
 import { Repository } from 'typeorm'
 import { User } from './user.entity'
 import * as bcrypt from 'bcrypt'
+import { encrypt } from 'src/helpers/encrypt.helper'
 
 @Injectable()
 export class UsersService {
@@ -47,8 +48,22 @@ export class UsersService {
     return userData
   }
 
-  update(updateUserDto: UpdateUserDto) {
-    return 'This action updates the user'
+  // Altera dados de usuário:
+  async update(cpf: string, updateUserDto: UpdateUserDto) {
+    delete updateUserDto.cpf // impede troca de CPF
+
+    // Encripta senha:
+    if (updateUserDto.password)
+      updateUserDto.password = await encrypt(updateUserDto.password)
+
+    const result = await this.usersRepository.update({ cpf }, updateUserDto)
+
+    if (!result.affected)
+      throw new Error('Não foi possível atualizar seus dados')
+
+    updateUserDto.cpf = cpf
+    delete updateUserDto.password
+    return updateUserDto
   }
 
   // Remove usuário por CPF:

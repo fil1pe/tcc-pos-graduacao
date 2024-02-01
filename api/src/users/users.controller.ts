@@ -28,9 +28,10 @@ export class UsersController {
     return this.usersService.findOne(req.user.sub) // retorna dados do usuário logado
   }
 
+  @UseGuards(AuthGuard)
   @Patch('me')
-  update(@Body() updateUserDto: UpdateUserDto) {
-    return this.usersService.update(updateUserDto)
+  update(@Request() req, @Body() updateUserDto: UpdateUserDto) {
+    return this.usersService.update(req.user.sub, updateUserDto) // altera dados do usuário logado
   }
 
   @UseGuards(AuthGuard)
