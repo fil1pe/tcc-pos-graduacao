@@ -11,7 +11,7 @@ export class AuthService {
 
   async signIn(email: string, password: string) {
     try {
-      const user = await this.usersService.findByEmailAndPassword(
+      const user = await this.usersService.findOneByEmailAndPassword(
         email,
         password,
       )

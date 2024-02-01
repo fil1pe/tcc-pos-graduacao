@@ -26,6 +26,7 @@ export class UsersService {
     return userData
   }
 
+  // Busca usuário por CPF:
   async findOne(cpf: string) {
     const userData = await this.usersRepository.findOneByOrFail({ cpf })
     delete userData.password // remove a senha do retorno por segurança
@@ -33,7 +34,7 @@ export class UsersService {
   }
 
   // Busca usuário por e-mail e senha:
-  async findByEmailAndPassword(email: string, password: string) {
+  async findOneByEmailAndPassword(email: string, password: string) {
     const userData = await this.usersRepository.findOneByOrFail({
       email,
     })
@@ -50,6 +51,7 @@ export class UsersService {
     return 'This action updates the user'
   }
 
+  // Remove usuário por CPF:
   async remove(cpf: string) {
     const result = await this.usersRepository.delete({ cpf })
     if (!result.affected) throw new Error('Usuário não encontrado')

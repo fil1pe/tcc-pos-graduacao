@@ -25,7 +25,7 @@ export class UsersController {
   @UseGuards(AuthGuard)
   @Get('me')
   findMe(@Request() req) {
-    return this.usersService.findOne(req.user.sub)
+    return this.usersService.findOne(req.user.sub) // retorna dados do usuário logado
   }
 
   @Patch('me')
@@ -36,6 +36,6 @@ export class UsersController {
   @UseGuards(AuthGuard)
   @Delete('me')
   remove(@Request() req) {
-    return this.usersService.remove(req.user.sub)
+    return this.usersService.remove(req.user.sub) // remove o usuário logado
   }
 }
