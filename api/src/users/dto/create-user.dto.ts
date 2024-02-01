@@ -1,6 +1,6 @@
 import { Transform } from 'class-transformer'
 import { transformDate } from 'src/helpers/date-transform.helper'
-import * as bcrypt from 'bcrypt'
+import { encrypt } from 'src/helpers/encrypt.helper'
 
 export class CreateUserDto {
   cpf: string
@@ -20,7 +20,6 @@ export class CreateUserDto {
 
   // Encripta senha:
   async encryptPassword() {
-    const SALT_ROUNDS = 10
-    this.password = await bcrypt.hash(this.password, SALT_ROUNDS)
+    this.password = await encrypt(this.password)
   }
 }

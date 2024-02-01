@@ -5,9 +5,15 @@ import { CitiesModule } from './cities/cities.module'
 import { TypeOrmModule } from '@nestjs/typeorm'
 import { config } from './ormconfig'
 import { UsersModule } from './users/users.module'
+import { AuthModule } from './auth/auth.module'
 
 @Module({
-  imports: [CitiesModule, TypeOrmModule.forRoot(config), UsersModule],
+  imports: [
+    TypeOrmModule.forRoot(config),
+    CitiesModule,
+    UsersModule,
+    AuthModule,
+  ],
   controllers: [AppController],
   providers: [AppService],
 })

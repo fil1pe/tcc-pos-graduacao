@@ -4,7 +4,7 @@ import { UpdateUserDto } from './dto/update-user.dto'
 import { InjectRepository } from '@nestjs/typeorm'
 import { Repository } from 'typeorm'
 import { User } from './user.entity'
-import { encrypt } from 'src/helpers/encrypt.helper'
+import * as bcrypt from 'bcrypt'
 
 @Injectable()
 export class UsersService {
@@ -32,11 +32,14 @@ export class UsersService {
 
   // Busca usuário por e-mail e senha:
   async findByEmailAndPassword(email: string, password: string) {
-    password = await encrypt(password) // encripta senha
     const userData = await this.usersRepository.findOneByOrFail({
       email,
-      password,
     })
+
+    // Verifica se a senha coincide com o retorno:
+    if (!(await bcrypt.compare(password, userData.password)))
+      throw new Error('A senha informada não coincide')
+
     delete userData.password // remove a senha do retorno por segurança
     return userData
   }

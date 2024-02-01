@@ -20,18 +20,18 @@ export class UsersController {
     return this.usersService.create(createUserDto) // cadastra usuário
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.usersService.findOne(+id)
+  @Get('me')
+  findMe() {
+    return this.usersService.find()
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
-    return this.usersService.update(+id, updateUserDto)
+  @Patch('me')
+  update(@Body() updateUserDto: UpdateUserDto) {
+    return this.usersService.update(updateUserDto)
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.usersService.remove(+id)
+  @Delete('me')
+  remove() {
+    return this.usersService.remove()
   }
 }
