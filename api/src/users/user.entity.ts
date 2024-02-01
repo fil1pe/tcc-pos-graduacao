@@ -21,7 +21,9 @@ export class User {
   @Column()
   address: string
 
-  @ManyToOne((type) => City)
+  @ManyToOne(() => City, {
+    nullable: false,
+  })
   @JoinColumn({ name: 'city', foreignKeyConstraintName: 'user_city_fk' })
   city: number
 }
