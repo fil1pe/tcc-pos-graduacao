@@ -4,12 +4,14 @@ import {
   Post,
   Body,
   Patch,
-  Param,
   Delete,
+  UseGuards,
+  Request,
 } from '@nestjs/common'
 import { UsersService } from './users.service'
 import { CreateUserDto } from './dto/create-user.dto'
 import { UpdateUserDto } from './dto/update-user.dto'
+import { AuthGuard } from 'src/auth/auth.guard'
 
 @Controller('users')
 export class UsersController {
@@ -20,9 +22,10 @@ export class UsersController {
     return this.usersService.create(createUserDto) // cadastra usuário
   }
 
+  @UseGuards(AuthGuard)
   @Get('me')
-  findMe() {
-    return this.usersService.find()
+  findMe(@Request() req) {
+    return this.usersService.findOne(req.user.sub)
   }
 
   @Patch('me')
@@ -30,8 +33,9 @@ export class UsersController {
     return this.usersService.update(updateUserDto)
   }
 
+  @UseGuards(AuthGuard)
   @Delete('me')
-  remove() {
-    return this.usersService.remove()
+  remove(@Request() req) {
+    return this.usersService.remove(req.user.sub)
   }
 }
