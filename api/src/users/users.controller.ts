@@ -12,10 +12,14 @@ import { UsersService } from './users.service'
 import { CreateUserDto } from './dto/create-user.dto'
 import { UpdateUserDto } from './dto/update-user.dto'
 import { AuthGuard } from 'src/auth/auth.guard'
+import { EstablishmentsService } from 'src/establishments/establishments.service'
 
 @Controller('users')
 export class UsersController {
-  constructor(private readonly usersService: UsersService) {}
+  constructor(
+    private readonly usersService: UsersService,
+    private readonly usersestablishmentsService: EstablishmentsService,
+  ) {}
 
   @Post()
   create(@Body() createUserDto: CreateUserDto) {
@@ -38,5 +42,12 @@ export class UsersController {
   @Delete('me')
   remove(@Request() req) {
     return this.usersService.remove(req.user.sub) // remove o usuário logado
+  }
+
+  // Lista todos os estabelecimentos do usuário:
+  @UseGuards(AuthGuard)
+  @Get('me/establishments')
+  findEstablishments(@Request() req) {
+    return this.usersestablishmentsService.findAllByAdmin(req.user.sub)
   }
 }

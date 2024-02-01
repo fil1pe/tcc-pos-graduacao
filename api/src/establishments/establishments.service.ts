@@ -1,9 +1,9 @@
-import { Injectable } from '@nestjs/common'
+import { Injectable, UnauthorizedException } from '@nestjs/common'
 import { CreateEstablishmentDto } from './dto/create-establishment.dto'
 import { UpdateEstablishmentDto } from './dto/update-establishment.dto'
 import { Establishment } from './entities/establishment.entity'
 import { InjectRepository } from '@nestjs/typeorm'
-import { Repository } from 'typeorm'
+import { DeleteResult, Repository, UpdateResult } from 'typeorm'
 
 @Injectable()
 export class EstablishmentsService {
@@ -13,7 +13,7 @@ export class EstablishmentsService {
   ) {}
 
   // Cadastra estabelecimento:
-  async create(createEstablishmentDto: CreateEstablishmentDto) {
+  async create(cpf: string, createEstablishmentDto: CreateEstablishmentDto) {
     // Verifica duplicidade de CNPJ:
     if (
       await this.establishmentsRepository.findOneBy({
@@ -22,7 +22,30 @@ export class EstablishmentsService {
     )
       throw new Error('O CNPJ já está cadastrado')
 
+    createEstablishmentDto.admins = [{ cpf }]
+
     return this.establishmentsRepository.save(createEstablishmentDto)
+  }
+
+  // Busca estabelecimentos por admin:
+  findAllByAdmin(cpf: string) {
+    return this.establishmentsRepository.find({
+      where: {
+        admins: {
+          cpf,
+        },
+      },
+    })
+  }
+  findOneByAdminAndCnpj(cpf: string, cnpj: string) {
+    return this.establishmentsRepository.findOneOrFail({
+      where: {
+        cnpj,
+        admins: {
+          cpf,
+        },
+      },
+    })
   }
 
   // Busca estabelecimento por CNPJ:
@@ -31,13 +54,24 @@ export class EstablishmentsService {
   }
 
   // Altera dados de estabelecimento:
-  async update(cnpj: string, updateEstablishmentDto: UpdateEstablishmentDto) {
-    delete updateEstablishmentDto.cnpj // impede troca de CNPJ
+  async update(
+    cpf: string,
+    cnpj: string,
+    updateEstablishmentDto: UpdateEstablishmentDto,
+  ) {
+    let result: UpdateResult
+    try {
+      await this.findOneByAdminAndCnpj(cpf, cnpj) // verifica se CPF é admin
 
-    const result = await this.establishmentsRepository.update(
-      { cnpj },
-      updateEstablishmentDto,
-    )
+      delete updateEstablishmentDto.cnpj // impede troca de CNPJ
+
+      result = await this.establishmentsRepository.update(
+        { cnpj },
+        updateEstablishmentDto,
+      )
+    } catch {
+      throw new UnauthorizedException()
+    }
 
     if (!result.affected)
       throw new Error('Não foi possível atualizar os dados do estabelecimento')
@@ -47,8 +81,14 @@ export class EstablishmentsService {
   }
 
   // Remove estabelecimento por CNPJ:
-  async remove(cnpj: string) {
-    const result = await this.establishmentsRepository.delete({ cnpj })
+  async remove(cpf: string, cnpj: string) {
+    let result: DeleteResult
+    try {
+      await this.findOneByAdminAndCnpj(cpf, cnpj) // verifica se CPF é admin
+      result = await this.establishmentsRepository.delete({ cnpj })
+    } catch {
+      throw new UnauthorizedException()
+    }
     if (!result.affected) throw new Error('Estabelecimento não encontrado')
   }
 }

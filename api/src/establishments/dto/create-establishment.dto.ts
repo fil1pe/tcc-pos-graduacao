@@ -1,3 +1,5 @@
+import { User } from 'src/users/user.entity'
+
 export class CreateEstablishmentDto {
   cnpj: string
 
@@ -6,4 +8,6 @@ export class CreateEstablishmentDto {
   address: string
 
   city: number
+
+  admins?: Pick<User, 'cpf'>[]
 }
