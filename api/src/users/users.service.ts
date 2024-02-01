@@ -5,7 +5,6 @@ import { InjectRepository } from '@nestjs/typeorm'
 import { Repository } from 'typeorm'
 import { User } from './user.entity'
 import * as bcrypt from 'bcrypt'
-import { encrypt } from 'src/helpers/encrypt.helper'
 
 @Injectable()
 export class UsersService {
@@ -16,11 +15,11 @@ export class UsersService {
 
   // Cadastra usuário:
   async create(createUserDto: CreateUserDto) {
-    await createUserDto.encryptPassword() // encripta senha
-
     // Verifica duplicidade de CPF:
     if (await this.usersRepository.findOneBy({ cpf: createUserDto.cpf }))
       throw new Error('O CPF já está cadastrado')
+
+    await createUserDto.encryptPassword() // encripta senha
 
     const userData = await this.usersRepository.save(createUserDto)
     delete userData.password // remove a senha do retorno por segurança
@@ -51,10 +50,7 @@ export class UsersService {
   // Altera dados de usuário:
   async update(cpf: string, updateUserDto: UpdateUserDto) {
     delete updateUserDto.cpf // impede troca de CPF
-
-    // Encripta senha:
-    if (updateUserDto.password)
-      updateUserDto.password = await encrypt(updateUserDto.password)
+    await updateUserDto.encryptPassword() // encripta senha
 
     const result = await this.usersRepository.update({ cpf }, updateUserDto)
 

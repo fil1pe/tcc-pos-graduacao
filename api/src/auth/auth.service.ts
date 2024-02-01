@@ -9,13 +9,14 @@ export class AuthService {
     private jwtService: JwtService,
   ) {}
 
+  // Login:
   async signIn(email: string, password: string) {
     try {
-      const user = await this.usersService.findOneByEmailAndPassword(
+      const userData = await this.usersService.findOneByEmailAndPassword(
         email,
         password,
       )
-      const payload = { sub: user.cpf, email: user.email }
+      const payload = { sub: userData.cpf, email: userData.email }
       return {
         accessToken: await this.jwtService.signAsync(payload),
       }
