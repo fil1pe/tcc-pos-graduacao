@@ -23,7 +23,7 @@ export class OffersService {
     id: number,
     { minPeople, maxPeople }: CreateOfferDto,
   ) {
-    await this.servicesService.isAdmin(cpf, id) // verifica autoridade p/ serviço
+    await this.servicesService.checkAdmin(cpf, id) // verifica autoridade p/ serviço
     return this.offersRepository.save({
       minPeople,
       maxPeople,
@@ -65,13 +65,13 @@ export class OffersService {
 
   // Remove oferta:
   async remove(cpf: string, oid: number) {
-    await this.isAdmin(cpf, oid) // verifica autoridade
+    await this.checkAdmin(cpf, oid) // verifica autoridade
     const { affected } = await this.offersRepository.delete({ id: oid })
     if (!affected) throw new NotFoundException()
   }
 
   // Verifica autoridade:
-  async isAdmin(cpf: string, oid: number) {
+  async checkAdmin(cpf: string, oid: number) {
     try {
       await this.offersRepository.findOneOrFail({
         where: {

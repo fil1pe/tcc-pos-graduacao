@@ -49,7 +49,7 @@ export class EstablishmentsService {
     })
   }
 
-  async isAdmin(cpf: string, cnpj: string) {
+  async checkAdmin(cpf: string, cnpj: string) {
     try {
       await this.findOneByAdminAndCnpj(cpf, cnpj)
     } catch {

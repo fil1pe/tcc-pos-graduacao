@@ -19,7 +19,7 @@ export class ServicesService {
 
   // Cadastra serviço:
   async create(cpf: string, cnpj: string, { type, price }: CreateServiceDto) {
-    await this.establishmentsService.isAdmin(cpf, cnpj) // verifica autoridade p/ estabelecimento
+    await this.establishmentsService.checkAdmin(cpf, cnpj) // verifica autoridade p/ estabelecimento
     return this.servicesRepository.save({
       type,
       price,
@@ -48,13 +48,13 @@ export class ServicesService {
 
   // Remove serviço:
   async remove(cpf: string, cnpj: string, id: number) {
-    await this.establishmentsService.isAdmin(cpf, cnpj) // verifica autoridade p/ estabelecimento
+    await this.establishmentsService.checkAdmin(cpf, cnpj) // verifica autoridade p/ estabelecimento
     const { affected } = await this.servicesRepository.delete({ id })
     if (!affected) throw new NotFoundException()
   }
 
   // Verifica autoridade:
-  async isAdmin(cpf: string, id: number) {
+  async checkAdmin(cpf: string, id: number) {
     try {
       await this.servicesRepository.findOneOrFail({
         where: {
