@@ -5,7 +5,7 @@ import {
   ManyToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm'
-import { Establishment } from './establishment.entity'
+import { Establishment } from '../establishments/entities/establishment.entity'
 
 @Entity('services')
 export class Service {
@@ -27,5 +27,5 @@ export class Service {
     name: 'establishment',
     foreignKeyConstraintName: 'service_establishment_fk',
   })
-  establishment: string
+  establishment: Establishment
 }

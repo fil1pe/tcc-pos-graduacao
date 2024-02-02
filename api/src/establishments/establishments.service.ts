@@ -37,6 +37,7 @@ export class EstablishmentsService {
       },
     })
   }
+
   findOneByAdminAndCnpj(cpf: string, cnpj: string) {
     return this.establishmentsRepository.findOneOrFail({
       where: {
@@ -46,6 +47,14 @@ export class EstablishmentsService {
         },
       },
     })
+  }
+
+  async isAdmin(cpf: string, cnpj: string) {
+    try {
+      await this.findOneByAdminAndCnpj(cpf, cnpj)
+    } catch {
+      throw new UnauthorizedException()
+    }
   }
 
   // Busca estabelecimento por CNPJ:
