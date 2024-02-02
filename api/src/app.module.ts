@@ -8,6 +8,7 @@ import { UsersModule } from './users/users.module'
 import { AuthModule } from './auth/auth.module'
 import { EstablishmentsModule } from './establishments/establishments.module'
 import { OffersModule } from './offers/offers.module'
+import { InterestsModule } from './interests/interests.module'
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { OffersModule } from './offers/offers.module'
     AuthModule,
     EstablishmentsModule,
     OffersModule,
+    InterestsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

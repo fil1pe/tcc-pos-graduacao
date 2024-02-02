@@ -13,12 +13,14 @@ import { CreateUserDto } from './dto/create-user.dto'
 import { UpdateUserDto } from './dto/update-user.dto'
 import { AuthGuard } from 'src/auth/auth.guard'
 import { EstablishmentsService } from 'src/establishments/establishments.service'
+import { InterestsService } from 'src/interests/interests.service'
 
 @Controller('users')
 export class UsersController {
   constructor(
     private readonly usersService: UsersService,
-    private readonly usersestablishmentsService: EstablishmentsService,
+    private readonly establishmentsService: EstablishmentsService,
+    private readonly interestsService: InterestsService,
   ) {}
 
   @Post()
@@ -48,6 +50,13 @@ export class UsersController {
   @UseGuards(AuthGuard)
   @Get('me/establishments')
   findEstablishments(@Request() req) {
-    return this.usersestablishmentsService.findAllByAdmin(req.user.sub)
+    return this.establishmentsService.findAllByAdmin(req.user.sub)
+  }
+
+  @UseGuards(AuthGuard)
+  @Get('me/interests')
+  // Busca todos os interesses do usuário:
+  findInterests(@Request() req) {
+    return this.interestsService.findAll(req.user.sub)
   }
 }
