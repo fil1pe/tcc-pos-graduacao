@@ -1,4 +1,8 @@
-import { HttpException, Injectable } from '@nestjs/common'
+import {
+  HttpException,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common'
 import { CreateServiceDto } from './create-service.dto'
 import { InjectRepository } from '@nestjs/typeorm'
 import { Service } from './service.entity'
@@ -15,7 +19,7 @@ export class ServicesService {
 
   // Cadastra serviço:
   async create(cpf: string, cnpj: string, { type, price }: CreateServiceDto) {
-    await this.establishmentsService.isAdmin(cpf, cnpj) // verifica autoridade
+    await this.establishmentsService.isAdmin(cpf, cnpj) // verifica autoridade p/ estabelecimento
     return this.servicesRepository.save({
       type,
       price,
@@ -44,9 +48,26 @@ export class ServicesService {
 
   // Remove serviço:
   async remove(cpf: string, cnpj: string, id: number) {
-    await this.establishmentsService.isAdmin(cpf, cnpj) // verifica autoridade
+    await this.establishmentsService.isAdmin(cpf, cnpj) // verifica autoridade p/ estabelecimento
     const { affected } = await this.servicesRepository.delete({ id })
     if (!affected) throw new NotFoundException()
+  }
+
+  // Verifica autoridade:
+  async isAdmin(cpf: string, id: number) {
+    try {
+      await this.servicesRepository.findOneOrFail({
+        where: {
+          establishment: {
+            admins: {
+              cpf: cpf,
+            },
+          },
+        },
+      })
+    } catch {
+      throw new UnauthorizedException()
+    }
   }
 }
 

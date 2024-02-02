@@ -12,5 +12,6 @@ import { EstablishmentsModule } from '../establishments/establishments.module'
   ],
   controllers: [ServicesController],
   providers: [ServicesService],
+  exports: [ServicesService],
 })
 export class ServicesModule {}
