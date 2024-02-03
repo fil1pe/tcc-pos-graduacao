@@ -3,6 +3,7 @@ import { CreateInterestDto } from './create-interest.dto'
 import { InjectRepository } from '@nestjs/typeorm'
 import { Interest } from './interest.entity'
 import { Repository } from 'typeorm'
+import { Match } from 'src/matches/match.entity'
 
 @Injectable()
 export class InterestsService {
@@ -36,28 +37,30 @@ export class InterestsService {
     })
   }
 
+  // Query de busca dos interesses do usuário:
+  find(cpf: string) {
+    return this.interestsRepository
+      .createQueryBuilder('interests')
+      .leftJoinAndMapOne(
+        'interests.match',
+        Match,
+        'matches',
+        'matches.interest = interests.id',
+      )
+      .where('interests.user = :cpf', { cpf })
+  }
+
   // Busca todos os interesses do usuário:
   findAll(cpf: string) {
-    return this.interestsRepository.find({
-      where: {
-        user: {
-          cpf,
-        },
-      },
-    })
+    return this.find(cpf).getMany()
   }
 
   // Busca interesse específico do usuário:
   async findOne(cpf: string, id: number) {
     try {
-      return await this.interestsRepository.findOneOrFail({
-        where: {
-          id,
-          user: {
-            cpf,
-          },
-        },
-      })
+      return await this.find(cpf)
+        .andWhere('interests.id = :id', { id })
+        .getOneOrFail()
     } catch {
       throw new NotFoundException()
     }

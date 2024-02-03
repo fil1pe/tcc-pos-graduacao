@@ -8,6 +8,8 @@ import { InjectRepository } from '@nestjs/typeorm'
 import { Offer } from './offer.entity'
 import { Repository } from 'typeorm'
 import { ServicesService } from '../services/services.service'
+import { Match } from 'src/matches/match.entity'
+import { Service } from 'src/services/service.entity'
 
 @Injectable()
 export class OffersService {
@@ -33,31 +35,35 @@ export class OffersService {
     })
   }
 
+  // Query de busca das ofertas:
+  find() {
+    return this.offersRepository
+      .createQueryBuilder('offers')
+      .leftJoinAndMapOne(
+        'offers.match',
+        Match,
+        'matches',
+        'matches.offer = offers.id',
+      )
+  }
+
   // Busca todas as ofertas de um serviço:
   findAll(id: number) {
-    return this.offersRepository.find({
-      where: {
-        service: {
-          id,
-        },
-      },
-      relations: {
-        service: true,
-      },
-    })
+    return this.find().where('offers.service = :id', { id }).getMany()
   }
 
   // Busca oferta específica:
   async findOne(oid: number) {
     try {
-      return await this.offersRepository.findOneOrFail({
-        where: {
-          id: oid,
-        },
-        relations: {
-          service: true,
-        },
-      })
+      return await this.find()
+        .leftJoinAndMapOne(
+          'offers.service',
+          Service,
+          'services',
+          'services.id = offers.service',
+        )
+        .where('offers.id = :oid', { oid })
+        .getOneOrFail()
     } catch {
       throw new NotFoundException()
     }
