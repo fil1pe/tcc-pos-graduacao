@@ -1,0 +1,52 @@
+version: "3"
+
+services:
+  # Banco de dados:
+  db:
+    platform: linux/x86_64
+    image: mysql:5.7
+    command: --init-file /usr/src/init.sql
+    volumes:
+      - ./init.sql:/usr/src/init.sql
+      - db_data:/var/lib/mysql
+    restart: always
+    ports:
+      - "3307:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+
+  # phpMyAdmin
+  phpmyadmin:
+    depends_on:
+      - db
+    image: phpmyadmin
+    restart: always
+    ports:
+      - "3001:80"
+    environment:
+      PMA_HOST: db
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+
+  # App:
+  app:
+    depends_on:
+      - db
+    image: nestjs
+    volumes:
+      - ./api:/usr/src/app
+    build:
+      context: ./api
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      DB_HOST: db
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      JWT_SECRET: ${JWT_SECRET}
+
+networks:
+  default:
+    driver: bridge
+
+volumes:
+  db_data:

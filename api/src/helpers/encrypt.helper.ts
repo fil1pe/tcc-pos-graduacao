@@ -1,4 +1,4 @@
-import * as bcrypt from 'bcrypt'
+import * as bcrypt from 'bcryptjs'
 
 // Função para encriptar senha:
 export async function encrypt(str: string) {

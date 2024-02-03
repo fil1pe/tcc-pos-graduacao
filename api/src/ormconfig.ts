@@ -3,11 +3,11 @@ import { join } from 'path'
 
 export const config: DataSourceOptions = {
   type: 'mysql',
-  host: 'localhost',
+  host: process.env.DB_HOST,
   port: 3306,
   username: 'root',
-  password: 'tiki',
-  database: 'tcc',
+  password: process.env.MYSQL_ROOT_PASSWORD,
+  database: 'dev',
   entities: [join(__dirname, '**', '*.entity.{ts,js}')],
   synchronize: true,
 }

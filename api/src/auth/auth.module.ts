@@ -9,8 +9,7 @@ import { JwtModule } from '@nestjs/jwt'
     UsersModule,
     JwtModule.register({
       global: true,
-      secret:
-        'DO NOT USE THIS VALUE. INSTEAD, CREATE A COMPLEX SECRET AND KEEP IT SAFE OUTSIDE OF THE SOURCE CODE.',
+      secret: process.env.JWT_SECRET,
       signOptions: { expiresIn: '1h' },
     }),
   ],
