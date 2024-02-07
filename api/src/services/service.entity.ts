@@ -5,7 +5,7 @@ import {
   ManyToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm'
-import { Establishment } from '../establishments/entities/establishment.entity'
+import { Establishment } from '../establishments/establishment.entity'
 
 @Entity('services')
 export class Service {

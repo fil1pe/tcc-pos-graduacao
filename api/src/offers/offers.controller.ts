@@ -11,7 +11,9 @@ import {
 import { OffersService } from './offers.service'
 import { CreateOfferDto } from './create-offer.dto'
 import { AuthGuard } from 'src/auth/auth.guard'
+import { ApiTags } from '@nestjs/swagger'
 
+@ApiTags('offers')
 @Controller()
 export class OffersController {
   constructor(private readonly offersService: OffersService) {}
@@ -33,16 +35,16 @@ export class OffersController {
     return this.offersService.findAll(+id)
   }
 
-  @Get('offers/:oid')
+  @Get('offers/:id')
   // Busca oferta específica:
-  findOne(@Param('oid') oid: string) {
-    return this.offersService.findOne(+oid)
+  findOne(@Param('id') id: string) {
+    return this.offersService.findOne(+id)
   }
 
   @UseGuards(AuthGuard)
-  @Delete('offers/:oid')
+  @Delete('offers/:id')
   // Remove oferta:
-  remove(@Request() req, @Param('oid') oid: string) {
-    return this.offersService.remove(req.user.sub, +oid)
+  remove(@Request() req, @Param('oid') id: string) {
+    return this.offersService.remove(req.user.sub, +id)
   }
 }

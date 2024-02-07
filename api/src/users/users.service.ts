@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common'
+import { HttpException, Injectable } from '@nestjs/common'
 import { CreateUserDto } from './dto/create-user.dto'
 import { UpdateUserDto } from './dto/update-user.dto'
 import { InjectRepository } from '@nestjs/typeorm'
@@ -17,54 +17,83 @@ export class UsersService {
   async create(createUserDto: CreateUserDto) {
     // Verifica duplicidade de CPF:
     if (await this.usersRepository.findOneBy({ cpf: createUserDto.cpf }))
-      throw new Error('O CPF já está cadastrado')
+      throw new HttpException('O CPF já está cadastrado', 400)
 
     await createUserDto.encryptPassword() // encripta senha
+    const { cpf, name, email, birthDate, password, address, city } =
+      createUserDto
 
-    const userData = await this.usersRepository.save(createUserDto)
+    const userData = await this.usersRepository.save({
+      cpf,
+      name,
+      email,
+      birthDate,
+      password,
+      address,
+      city: {
+        id: city,
+      },
+    })
     delete userData.password // remove a senha do retorno por segurança
     return userData
   }
 
-  // Busca usuário por CPF:
+  // Busca dados do usuário:
   async findOne(cpf: string) {
-    const userData = await this.usersRepository.findOneByOrFail({ cpf })
-    delete userData.password // remove a senha do retorno por segurança
-    return userData
+    try {
+      return await this.usersRepository.findOneOrFail({
+        where: {
+          cpf,
+        },
+        relations: {
+          city: true,
+          password: false as never,
+        },
+      })
+    } catch {
+      throw new NotFoundException()
+    }
   }
 
   // Busca usuário por e-mail e senha:
   async findOneByEmailAndPassword(email: string, password: string) {
-    const userData = await this.usersRepository.findOneByOrFail({
-      email,
+    const userData = await this.usersRepository.findOneOrFail({
+      where: {
+        email,
+      },
     })
 
     // Verifica se a senha coincide com o retorno:
     if (!(await bcrypt.compare(password, userData.password)))
-      throw new Error('A senha informada não coincide')
+      throw new HttpException('A senha informada não coincide', 400)
 
     delete userData.password // remove a senha do retorno por segurança
     return userData
   }
 
-  // Altera dados de usuário:
+  // Altera dados do usuário:
   async update(cpf: string, updateUserDto: UpdateUserDto) {
-    delete updateUserDto.cpf // impede troca de CPF
     await updateUserDto.encryptPassword() // encripta senha
+    const { name, password, email, birthDate, address, city } = updateUserDto
 
-    const result = await this.usersRepository.update({ cpf }, updateUserDto)
+    const { affected } = await this.usersRepository.update(
+      { cpf },
+      { name, password, email, birthDate, address, city: { id: city } },
+    )
 
-    if (!result.affected)
-      throw new Error('Não foi possível atualizar seus dados')
-
-    updateUserDto.cpf = cpf
-    delete updateUserDto.password
-    return updateUserDto
+    if (!affected)
+      throw new HttpException('Não foi possível atualizar seus dados', 500)
   }
 
-  // Remove usuário por CPF:
+  // Remove o usuário:
   async remove(cpf: string) {
-    const result = await this.usersRepository.delete({ cpf })
-    if (!result.affected) throw new Error('Usuário não encontrado')
+    const { affected } = await this.usersRepository.delete({ cpf })
+    if (!affected) throw new NotFoundException()
+  }
+}
+
+class NotFoundException extends HttpException {
+  constructor() {
+    super('Usuário não encontrado', 404)
   }
 }

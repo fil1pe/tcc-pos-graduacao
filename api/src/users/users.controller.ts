@@ -12,51 +12,37 @@ import { UsersService } from './users.service'
 import { CreateUserDto } from './dto/create-user.dto'
 import { UpdateUserDto } from './dto/update-user.dto'
 import { AuthGuard } from 'src/auth/auth.guard'
-import { EstablishmentsService } from 'src/establishments/establishments.service'
-import { InterestsService } from 'src/interests/interests.service'
+import { ApiTags } from '@nestjs/swagger'
 
+@ApiTags('users')
 @Controller('users')
 export class UsersController {
-  constructor(
-    private readonly usersService: UsersService,
-    private readonly establishmentsService: EstablishmentsService,
-    private readonly interestsService: InterestsService,
-  ) {}
+  constructor(private readonly usersService: UsersService) {}
 
   @Post()
+  // Cadastra usuário:
   create(@Body() createUserDto: CreateUserDto) {
-    return this.usersService.create(createUserDto) // cadastra usuário
+    return this.usersService.create(createUserDto)
   }
 
   @UseGuards(AuthGuard)
   @Get('me')
+  // Busca dados do usuário:
   findMe(@Request() req) {
-    return this.usersService.findOne(req.user.sub) // retorna dados do usuário logado
+    return this.usersService.findOne(req.user.sub)
   }
 
   @UseGuards(AuthGuard)
   @Patch('me')
+  // Altera dados do usuário:
   update(@Request() req, @Body() updateUserDto: UpdateUserDto) {
-    return this.usersService.update(req.user.sub, updateUserDto) // altera dados do usuário logado
+    return this.usersService.update(req.user.sub, updateUserDto)
   }
 
   @UseGuards(AuthGuard)
   @Delete('me')
+  // Remove o usuário:
   remove(@Request() req) {
-    return this.usersService.remove(req.user.sub) // remove o usuário logado
-  }
-
-  // Lista todos os estabelecimentos do usuário:
-  @UseGuards(AuthGuard)
-  @Get('me/establishments')
-  findEstablishments(@Request() req) {
-    return this.establishmentsService.findAllByAdmin(req.user.sub)
-  }
-
-  @UseGuards(AuthGuard)
-  @Get('me/interests')
-  // Busca todos os interesses do usuário:
-  findInterests(@Request() req) {
-    return this.interestsService.findAll(req.user.sub)
+    return this.usersService.remove(req.user.sub)
   }
 }

@@ -11,13 +11,15 @@ import {
 import { ServicesService } from './services.service'
 import { CreateServiceDto } from './create-service.dto'
 import { AuthGuard } from 'src/auth/auth.guard'
+import { ApiTags } from '@nestjs/swagger'
 
-@Controller('establishments/:cnpj/services')
+@ApiTags('services')
+@Controller()
 export class ServicesController {
   constructor(private readonly servicesService: ServicesService) {}
 
   @UseGuards(AuthGuard)
-  @Post()
+  @Post('establishments/:cnpj/services')
   // Cadastra serviço:
   create(
     @Request() req,
@@ -27,22 +29,22 @@ export class ServicesController {
     return this.servicesService.create(req.user.sub, cnpj, createServiceDto)
   }
 
-  @Get()
+  @Get('establishments/:cnpj/services')
   // Busca todos os serviços de um estabelecimento:
   findAll(@Param('cnpj') cnpj: string) {
     return this.servicesService.findAll(cnpj)
   }
 
-  @Get(':id')
-  // Busca serviço específico de um estabelecimento:
-  findOne(@Param('cnpj') cnpj: string, @Param('id') id: string) {
-    return this.servicesService.findOne(cnpj, +id)
+  @Get('services/:id')
+  // Busca serviço específico:
+  findOne(@Param('id') id: string) {
+    return this.servicesService.findOne(+id)
   }
 
   @UseGuards(AuthGuard)
-  @Delete(':id')
+  @Delete('services/:id')
   // Remove serviço:
-  remove(@Request() req, @Param('cnpj') cnpj: string, @Param('id') id: string) {
-    return this.servicesService.remove(req.user.sub, cnpj, +id)
+  remove(@Request() req, @Param('id') id: string) {
+    return this.servicesService.remove(req.user.sub, +id)
   }
 }

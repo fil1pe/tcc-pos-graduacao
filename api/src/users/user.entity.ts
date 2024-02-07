@@ -25,5 +25,5 @@ export class User {
     nullable: false,
   })
   @JoinColumn({ name: 'city', foreignKeyConstraintName: 'user_city_fk' })
-  city: number
+  city: City
 }

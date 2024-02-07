@@ -29,17 +29,25 @@ export class ServicesService {
 
   // Busca todos os serviços de um estabelecimento:
   findAll(cnpj: string) {
-    return this.servicesRepository.findBy({
-      establishment: { cnpj },
+    return this.servicesRepository.find({
+      where: {
+        establishment: { cnpj },
+      },
     })
   }
 
-  // Busca serviço específico de um estabelecimento:
-  async findOne(cnpj: string, id: number) {
+  // Busca serviço específico:
+  async findOne(id: number) {
     try {
-      return await this.servicesRepository.findOneByOrFail({
-        establishment: { cnpj },
-        id,
+      return await this.servicesRepository.findOneOrFail({
+        where: {
+          id,
+        },
+        relations: {
+          establishment: {
+            city: true as never,
+          },
+        },
       })
     } catch {
       throw new NotFoundException()
@@ -47,8 +55,8 @@ export class ServicesService {
   }
 
   // Remove serviço:
-  async remove(cpf: string, cnpj: string, id: number) {
-    await this.establishmentsService.checkAdmin(cpf, cnpj) // verifica autoridade p/ estabelecimento
+  async remove(cpf: string, id: number) {
+    await this.checkAdmin(cpf, id) // verifica autoridade
     const { affected } = await this.servicesRepository.delete({ id })
     if (!affected) throw new NotFoundException()
   }
@@ -58,9 +66,10 @@ export class ServicesService {
     try {
       await this.servicesRepository.findOneOrFail({
         where: {
+          id,
           establishment: {
             admins: {
-              cpf: cpf,
+              cpf,
             },
           },
         },

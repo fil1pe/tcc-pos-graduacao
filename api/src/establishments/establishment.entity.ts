@@ -21,7 +21,6 @@ export class Establishment {
   @Column()
   address: string
 
-  // Conforme em api/src/users/user.entity.ts:
   @ManyToOne(() => City, {
     nullable: false,
   })
@@ -29,9 +28,8 @@ export class Establishment {
     name: 'city',
     foreignKeyConstraintName: 'establishment_city_fk',
   })
-  city: number
+  city: City
 
-  // Administradores:
   @ManyToMany(() => User, { onDelete: 'CASCADE', onUpdate: 'CASCADE' })
   @JoinTable({
     name: 'admins',
