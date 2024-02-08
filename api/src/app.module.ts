@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common'
 import { CitiesModule } from './cities/cities.module'
+import { ServiceTypesModule } from './service-types/service-types.module'
 import { TypeOrmModule } from '@nestjs/typeorm'
 import { config } from './ormconfig'
 import { UsersModule } from './users/users.module'
@@ -13,6 +14,7 @@ import { MatchesModule } from './matches/matches.module'
   imports: [
     TypeOrmModule.forRoot(config),
     CitiesModule,
+    ServiceTypesModule,
     UsersModule,
     AuthModule,
     EstablishmentsModule,
