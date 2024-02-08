@@ -2,7 +2,7 @@ import { ApiProperty } from '@nestjs/swagger'
 
 export class CreateInterestDto {
   @ApiProperty()
-  serviceType: string
+  serviceType: number
 
   @ApiProperty()
   minPrice?: number

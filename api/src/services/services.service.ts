@@ -21,7 +21,9 @@ export class ServicesService {
   async create(cpf: string, cnpj: string, { type, price }: CreateServiceDto) {
     await this.establishmentsService.checkAdmin(cpf, cnpj) // verifica autoridade p/ estabelecimento
     return this.servicesRepository.save({
-      type,
+      type: {
+        id: type,
+      },
       price,
       establishment: { cnpj },
     })

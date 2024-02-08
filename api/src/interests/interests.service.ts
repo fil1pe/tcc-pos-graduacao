@@ -25,7 +25,9 @@ export class InterestsService {
     }: CreateInterestDto,
   ) {
     return this.interestsRepository.save({
-      serviceType,
+      serviceType: {
+        id: serviceType,
+      },
       minPrice: minPrice || 0,
       maxPrice: maxPrice || 99999999.99,
       minDate,
