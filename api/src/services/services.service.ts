@@ -65,6 +65,7 @@ export class ServicesService {
 
   // Verifica autoridade:
   async checkAdmin(cpf: string, id: number) {
+    if (!cpf || (!id && id !== 0)) throw new UnauthorizedException()
     try {
       await this.servicesRepository.findOneOrFail({
         where: {
