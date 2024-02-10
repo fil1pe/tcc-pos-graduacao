@@ -3,17 +3,17 @@ import {
   ValidatorConstraint,
   ValidatorConstraintInterface,
 } from 'class-validator'
-import { isCPF } from 'validation-br'
+import { isCNPJ } from 'validation-br'
 
 @ValidatorConstraint()
-export class IsCpf implements ValidatorConstraintInterface {
+export class IsCnpj implements ValidatorConstraintInterface {
   validate(value: string) {
     if (!value) return false
-    if (value.length !== 11) return false
-    return isCPF(value)
+    if (value.length !== 14) return false
+    return isCNPJ(value)
   }
 
   defaultMessage(args: ValidationArguments) {
-    return 'CPF inválido'
+    return 'CNPJ inválido'
   }
 }

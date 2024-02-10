@@ -8,7 +8,7 @@ import {
 import { City } from './city.entity'
 import { Repository } from 'typeorm'
 
-@ValidatorConstraint({ name: 'CityExists', async: true })
+@ValidatorConstraint({ async: true })
 @Injectable()
 export class CityExists implements ValidatorConstraintInterface {
   constructor(

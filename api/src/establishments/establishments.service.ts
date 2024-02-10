@@ -9,6 +9,7 @@ import { Establishment } from './establishment.entity'
 import { InjectRepository } from '@nestjs/typeorm'
 import { Repository } from 'typeorm'
 import { ApiTags } from '@nestjs/swagger'
+import { ValidationException } from 'src/helpers/validation-exception.helper'
 
 @ApiTags('establishments')
 @Injectable()
@@ -29,7 +30,7 @@ export class EstablishmentsService {
         cnpj,
       })
     )
-      throw new HttpException('O CNPJ já está cadastrado', 400)
+      throw new ValidationException('cnpj', 'O CNPJ já está cadastrado')
 
     return this.establishmentsRepository.save({
       cnpj,
@@ -74,6 +75,7 @@ export class EstablishmentsService {
 
   // Verifica autoridade:
   async checkAdmin(cpf: string, cnpj: string) {
+    if (!cpf || !cnpj) throw new UnauthorizedException()
     try {
       await this.establishmentsRepository.findOneOrFail({
         where: {
@@ -98,7 +100,12 @@ export class EstablishmentsService {
 
     const { affected } = await this.establishmentsRepository.update(
       { cnpj },
-      { name, address, city: { id: city }, admins },
+      {
+        name,
+        address,
+        city: city || city === 0 ? { id: city } : undefined,
+        admins,
+      },
     )
 
     if (!affected)

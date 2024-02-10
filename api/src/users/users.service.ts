@@ -6,6 +6,7 @@ import { Not, Repository } from 'typeorm'
 import { User } from './user.entity'
 import * as bcrypt from 'bcryptjs'
 import { parseDate } from 'src/helpers/parse-date.helper'
+import { ValidationException } from 'src/helpers/validation-exception.helper'
 
 @Injectable()
 export class UsersService {
@@ -98,7 +99,7 @@ export class UsersService {
         email,
         birthDate: birthDate && parseDate(birthDate),
         address,
-        city: city ? { id: city } : undefined,
+        city: city || city === 0 ? { id: city } : undefined,
       },
     )
 
@@ -116,20 +117,5 @@ export class UsersService {
 class NotFoundException extends HttpException {
   constructor() {
     super('Usuário não encontrado', 404)
-  }
-}
-
-class ValidationException extends HttpException {
-  constructor(property: string, message: string) {
-    super(
-      {
-        statusCode: 400,
-        message,
-        errors: {
-          [property]: message,
-        },
-      },
-      400,
-    )
   }
 }
