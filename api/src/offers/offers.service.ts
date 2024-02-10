@@ -10,6 +10,7 @@ import { Repository } from 'typeorm'
 import { ServicesService } from '../services/services.service'
 import { Match } from 'src/matches/match.entity'
 import { Service } from 'src/services/service.entity'
+import { ValidationException } from 'src/helpers/validation-exception.helper'
 
 @Injectable()
 export class OffersService {
@@ -26,6 +27,13 @@ export class OffersService {
     { minPeople, maxPeople }: CreateOfferDto,
   ) {
     await this.servicesService.checkAdmin(cpf, id) // verifica autoridade p/ serviço
+
+    if (minPeople > maxPeople)
+      throw new ValidationException(
+        'maxPeople',
+        'O número máximo de pessoas é menor que o mínimo',
+      )
+
     return this.offersRepository.save({
       minPeople,
       maxPeople,
@@ -78,6 +86,7 @@ export class OffersService {
 
   // Verifica autoridade:
   async checkAdmin(cpf: string, oid: number) {
+    if (!cpf || (!oid && oid !== 0)) throw new UnauthorizedException()
     try {
       await this.offersRepository.findOneOrFail({
         where: {
