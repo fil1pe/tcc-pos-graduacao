@@ -23,6 +23,8 @@ export class Establishment {
 
   @ManyToOne(() => City, {
     nullable: false,
+    onDelete: 'RESTRICT',
+    onUpdate: 'CASCADE',
   })
   @JoinColumn({
     name: 'city',

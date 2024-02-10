@@ -5,6 +5,7 @@ import { InjectRepository } from '@nestjs/typeorm'
 import { Repository } from 'typeorm'
 import { User } from './user.entity'
 import * as bcrypt from 'bcryptjs'
+import { parseDate } from 'src/helpers/parse-date.helper'
 
 @Injectable()
 export class UsersService {
@@ -17,7 +18,11 @@ export class UsersService {
   async create(createUserDto: CreateUserDto) {
     // Verifica duplicidade de CPF:
     if (await this.usersRepository.findOneBy({ cpf: createUserDto.cpf }))
-      throw new HttpException('O CPF já está cadastrado', 400)
+      throw new ValidationException('cpf', 'O CPF já está cadastrado')
+
+    // Verifica duplicidade de e-mail:
+    if (await this.usersRepository.findOneBy({ email: createUserDto.email }))
+      throw new ValidationException('email', 'O e-mail já está cadastrado')
 
     await createUserDto.encryptPassword() // encripta senha
     const { cpf, name, email, birthDate, password, address, city } =
@@ -27,7 +32,7 @@ export class UsersService {
       cpf,
       name,
       email,
-      birthDate,
+      birthDate: parseDate(birthDate),
       password,
       address,
       city: {
@@ -78,7 +83,14 @@ export class UsersService {
 
     const { affected } = await this.usersRepository.update(
       { cpf },
-      { name, password, email, birthDate, address, city: { id: city } },
+      {
+        name,
+        password,
+        email,
+        birthDate: birthDate && parseDate(birthDate),
+        address,
+        city: { id: city },
+      },
     )
 
     if (!affected)
@@ -95,5 +107,20 @@ export class UsersService {
 class NotFoundException extends HttpException {
   constructor() {
     super('Usuário não encontrado', 404)
+  }
+}
+
+class ValidationException extends HttpException {
+  constructor(property: string, message: string) {
+    super(
+      {
+        statusCode: 400,
+        message,
+        errors: {
+          [property]: message,
+        },
+      },
+      400,
+    )
   }
 }

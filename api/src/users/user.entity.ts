@@ -9,7 +9,7 @@ export class User {
   @Column()
   name: string
 
-  @Column()
+  @Column({ unique: true })
   email: string
 
   @Column()
@@ -23,6 +23,8 @@ export class User {
 
   @ManyToOne(() => City, {
     nullable: false,
+    onDelete: 'RESTRICT',
+    onUpdate: 'CASCADE',
   })
   @JoinColumn({ name: 'city', foreignKeyConstraintName: 'user_city_fk' })
   city: City
