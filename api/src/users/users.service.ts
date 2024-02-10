@@ -2,7 +2,7 @@ import { HttpException, Injectable } from '@nestjs/common'
 import { CreateUserDto } from './dto/create-user.dto'
 import { UpdateUserDto } from './dto/update-user.dto'
 import { InjectRepository } from '@nestjs/typeorm'
-import { Repository } from 'typeorm'
+import { Not, Repository } from 'typeorm'
 import { User } from './user.entity'
 import * as bcrypt from 'bcryptjs'
 import { parseDate } from 'src/helpers/parse-date.helper'
@@ -46,15 +46,16 @@ export class UsersService {
   // Busca dados do usuário:
   async findOne(cpf: string) {
     try {
-      return await this.usersRepository.findOneOrFail({
+      const userData = await this.usersRepository.findOneOrFail({
         where: {
           cpf,
         },
         relations: {
           city: true,
-          password: false as never,
         },
       })
+      delete userData.password // remove a senha do retorno por segurança
+      return userData
     } catch {
       throw new NotFoundException()
     }
@@ -81,6 +82,14 @@ export class UsersService {
     await updateUserDto.encryptPassword() // encripta senha
     const { name, password, email, birthDate, address, city } = updateUserDto
 
+    // Verifica duplicidade de e-mail:
+    if (
+      await this.usersRepository.findOne({
+        where: { email: updateUserDto.email, cpf: Not(cpf) },
+      })
+    )
+      throw new ValidationException('email', 'O e-mail já está cadastrado')
+
     const { affected } = await this.usersRepository.update(
       { cpf },
       {
@@ -89,7 +98,7 @@ export class UsersService {
         email,
         birthDate: birthDate && parseDate(birthDate),
         address,
-        city: { id: city },
+        city: city ? { id: city } : undefined,
       },
     )
 
