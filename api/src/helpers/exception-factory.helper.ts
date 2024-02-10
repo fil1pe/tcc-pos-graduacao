@@ -9,6 +9,8 @@ export function exceptionFactory(errors: ValidationError[]) {
       let message = constraints[constraint]
 
       if (constraint === 'isEmail') message = 'E-mail inválido'
+      else if (constraint === 'isDateString' || constraint === 'minDate')
+        message = 'Data inválida'
 
       return {
         ...obj,

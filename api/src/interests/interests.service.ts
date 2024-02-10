@@ -4,6 +4,7 @@ import { InjectRepository } from '@nestjs/typeorm'
 import { Interest } from './interest.entity'
 import { Repository } from 'typeorm'
 import { Match } from 'src/matches/match.entity'
+import { ValidationException } from 'src/helpers/validation-exception.helper'
 
 @Injectable()
 export class InterestsService {
@@ -24,12 +25,29 @@ export class InterestsService {
       people,
     }: CreateInterestDto,
   ) {
+    if (minPrice > maxPrice)
+      throw new ValidationException(
+        'maxPrice',
+        'O valor máximo é menor que o valor mínimo',
+      )
+
+    const minDateSeconds = Date.parse(minDate)
+
+    if (minDateSeconds < Date.now())
+      throw new ValidationException('minDate', 'Data inválida')
+
+    if (minDateSeconds > Date.parse(maxDate))
+      throw new ValidationException(
+        'maxDate',
+        'A última data vem antes da primeira data',
+      )
+
     return this.interestsRepository.save({
       serviceType: {
         id: serviceType,
       },
-      minPrice: minPrice || 0,
-      maxPrice: maxPrice || 99999999.99,
+      minPrice,
+      maxPrice,
       minDate,
       maxDate,
       people,
