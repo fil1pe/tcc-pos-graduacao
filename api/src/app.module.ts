@@ -9,6 +9,7 @@ import { EstablishmentsModule } from './establishments/establishments.module'
 import { OffersModule } from './offers/offers.module'
 import { InterestsModule } from './interests/interests.module'
 import { MatchesModule } from './matches/matches.module'
+import { SeederModule } from './seeder/seeder.module'
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { MatchesModule } from './matches/matches.module'
     OffersModule,
     InterestsModule,
     MatchesModule,
+    SeederModule,
   ],
 })
 export class AppModule {}

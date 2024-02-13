@@ -4,15 +4,9 @@ import { ValidationPipe } from '@nestjs/common'
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger'
 import { exceptionFactory } from './helpers/exception-factory.helper'
 import { useContainer } from 'class-validator'
-import { SeederModule } from './seeder/seeder.module'
 import { SeederService } from './seeder/seeder.service'
 
 async function bootstrap() {
-  // Seeds p/ banco de dados:
-  NestFactory.createApplicationContext(SeederModule).then((appContext) =>
-    appContext.get(SeederService).seed(),
-  )
-
   const app = await NestFactory.create(AppModule)
   app.useGlobalPipes(
     new ValidationPipe({
@@ -21,6 +15,9 @@ async function bootstrap() {
     }),
   )
   useContainer(app.select(AppModule), { fallbackOnErrors: true })
+
+  // Seeds p/ banco de dados:
+  app.get(SeederService).seed()
 
   // OpenAPI:
   const config = new DocumentBuilder().setTitle('API').build()

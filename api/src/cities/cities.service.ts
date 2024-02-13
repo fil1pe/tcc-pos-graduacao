@@ -11,8 +11,8 @@ export class CitiesService {
     private citiesRepository: Repository<City>,
   ) {}
 
-  // Cadastra cidades:
-  create(cities: CreateCityDto[]) {
+  // Seeds de cidades:
+  seed(cities: CreateCityDto[]) {
     return this.citiesRepository
       .createQueryBuilder()
       .insert()

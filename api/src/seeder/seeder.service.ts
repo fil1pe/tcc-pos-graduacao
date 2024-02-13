@@ -11,7 +11,7 @@ export class SeederService {
 
   seed() {
     return Promise.all([
-      this.citiesService.create([
+      this.citiesService.seed([
         {
           name: 'Porto Alegre',
           uf: 'RS',
@@ -25,7 +25,7 @@ export class SeederService {
           uf: 'SP',
         },
       ]),
-      this.serviceTypesService.create([
+      this.serviceTypesService.seed([
         {
           name: 'Refeição',
         },

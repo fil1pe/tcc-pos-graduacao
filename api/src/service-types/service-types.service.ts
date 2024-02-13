@@ -11,8 +11,8 @@ export class ServiceTypesService {
     private serviceTypesRepository: Repository<ServiceType>,
   ) {}
 
-  // Cadastra tipos de serviço:
-  create(types: CreateServiceTypeDto[]) {
+  // Seeds de tipos de serviço:
+  seed(types: CreateServiceTypeDto[]) {
     return this.serviceTypesRepository
       .createQueryBuilder()
       .insert()
