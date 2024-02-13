@@ -1,24 +1,38 @@
 import { Injectable } from '@nestjs/common'
 import { CitiesService } from 'src/cities/cities.service'
+import { ServiceTypesService } from 'src/service-types/service-types.service'
 
 @Injectable()
 export class SeederService {
-  constructor(private readonly citiesService: CitiesService) {}
+  constructor(
+    private readonly citiesService: CitiesService,
+    private readonly serviceTypesService: ServiceTypesService,
+  ) {}
 
   seed() {
-    return this.citiesService.create([
-      {
-        name: 'Porto Alegre',
-        uf: 'RS',
-      },
-      {
-        name: 'Joinville',
-        uf: 'SC',
-      },
-      {
-        name: 'São Paulo',
-        uf: 'SP',
-      },
+    return Promise.all([
+      this.citiesService.create([
+        {
+          name: 'Porto Alegre',
+          uf: 'RS',
+        },
+        {
+          name: 'Joinville',
+          uf: 'SC',
+        },
+        {
+          name: 'São Paulo',
+          uf: 'SP',
+        },
+      ]),
+      this.serviceTypesService.create([
+        {
+          name: 'Refeição',
+        },
+        {
+          name: 'Ingresso de museu',
+        },
+      ]),
     ])
   }
 }

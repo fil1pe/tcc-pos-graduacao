@@ -5,6 +5,6 @@ export class ServiceType {
   @PrimaryGeneratedColumn('increment')
   id: number
 
-  @Column()
+  @Column({ unique: true })
   name: string
 }

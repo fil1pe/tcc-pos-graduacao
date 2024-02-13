@@ -9,5 +9,6 @@ import { ServiceTypeExists } from './service-type-exists.helper'
   imports: [TypeOrmModule.forFeature([ServiceType])],
   controllers: [ServiceTypesController],
   providers: [ServiceTypesService, ServiceTypeExists],
+  exports: [ServiceTypesService],
 })
 export class ServiceTypesModule {}

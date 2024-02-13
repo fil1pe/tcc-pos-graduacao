@@ -2,6 +2,7 @@ import { HttpException, Injectable } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { Repository } from 'typeorm'
 import { ServiceType } from './service-type.entity'
+import { CreateServiceTypeDto } from './create-service-type.dto'
 
 @Injectable()
 export class ServiceTypesService {
@@ -9,6 +10,16 @@ export class ServiceTypesService {
     @InjectRepository(ServiceType)
     private serviceTypesRepository: Repository<ServiceType>,
   ) {}
+
+  // Cadastra tipos de serviço:
+  create(types: CreateServiceTypeDto[]) {
+    return this.serviceTypesRepository
+      .createQueryBuilder()
+      .insert()
+      .values(types.map(({ name }) => ({ name })))
+      .orIgnore()
+      .execute()
+  }
 
   // Busca todos os tipos de serviço:
   findAll() {
