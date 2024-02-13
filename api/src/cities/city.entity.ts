@@ -1,6 +1,7 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm'
+import { Column, Entity, Index, PrimaryGeneratedColumn } from 'typeorm'
 
 @Entity('cities')
+@Index(['name', 'uf'], { unique: true })
 export class City {
   @PrimaryGeneratedColumn('increment')
   id: number

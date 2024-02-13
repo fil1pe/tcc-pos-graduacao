@@ -2,6 +2,7 @@ import { HttpException, Injectable } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { Repository } from 'typeorm'
 import { City } from './city.entity'
+import { CreateCityDto } from './create-city.dto'
 
 @Injectable()
 export class CitiesService {
@@ -9,6 +10,16 @@ export class CitiesService {
     @InjectRepository(City)
     private citiesRepository: Repository<City>,
   ) {}
+
+  // Cadastra cidades:
+  create(cities: CreateCityDto[]) {
+    return this.citiesRepository
+      .createQueryBuilder()
+      .insert()
+      .values(cities.map(({ name, uf }) => ({ name, uf })))
+      .orIgnore()
+      .execute()
+  }
 
   // Busca todas as cidades:
   findAll() {

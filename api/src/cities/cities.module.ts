@@ -9,5 +9,6 @@ import { CityExists } from './city-exists.helper'
   imports: [TypeOrmModule.forFeature([City])],
   controllers: [CitiesController],
   providers: [CitiesService, CityExists],
+  exports: [CitiesService],
 })
 export class CitiesModule {}
