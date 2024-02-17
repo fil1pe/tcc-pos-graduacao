@@ -14,7 +14,7 @@ export class InterestsService {
   ) {}
 
   // Cadastra interesse:
-  create(
+  async create(
     cpf: string,
     {
       serviceType,
