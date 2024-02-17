@@ -78,6 +78,8 @@
       "**/*.(t|j)s"
     ],
     "coverageDirectory": "../coverage",
-    "testEnvironment": "node"
+    "testEnvironment": "node",
+    "globalSetup": "<rootDir>/setup-tests.ts",
+    "globalTeardown": "<rootDir>/teardown-tests.ts"
   }
 }
