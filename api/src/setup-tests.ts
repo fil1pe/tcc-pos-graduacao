@@ -10,14 +10,17 @@ import { Establishment } from 'src/establishments/establishment.entity'
 import { EstablishmentsService } from 'src/establishments/establishments.service'
 import { CreateEstablishmentDto } from './establishments/dto/create-establishment.dto'
 import { fake as fakeCnpj } from 'validation-br/dist/cnpj'
+import { Service } from 'src/services/service.entity'
+import { ServicesService } from 'src/services/services.service'
+import { CreateServiceDto } from 'src/services/create-service.dto'
 
 export default async () => {
   const userModule = await Test.createTestingModule({
     imports: [
       TypeOrmModule.forRoot(config),
-      TypeOrmModule.forFeature([User, Establishment]),
+      TypeOrmModule.forFeature([User, Establishment, Service]),
     ],
-    providers: [UsersService, EstablishmentsService],
+    providers: [UsersService, EstablishmentsService, ServicesService],
   }).compile()
   global.usersModule = userModule
 
@@ -27,6 +30,8 @@ export default async () => {
     EstablishmentsService,
   )
   global.establishmentsService = establishmentsService
+  const servicesService = userModule.get<ServicesService>(ServicesService)
+  global.servicesService = servicesService
 
   // Cadastra usuário de teste:
   const user = new CreateUserDto()
@@ -52,4 +57,12 @@ export default async () => {
     establishment,
   )
   process.env.jestEstablishment = JSON.stringify(global.establishment)
+
+  // Cadastra serviço de teste:
+  const service = new CreateServiceDto()
+  service.price = 100
+  service.type = 1
+  process.env.jestService = JSON.stringify(
+    await servicesService.create(user.cpf, establishment.cnpj, service),
+  )
 }
