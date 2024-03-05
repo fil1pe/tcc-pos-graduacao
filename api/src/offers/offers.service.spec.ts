@@ -19,6 +19,7 @@ describe('OffersService', () => {
   let offer: Offer
   let module: TestingModule
   let moduleService: OffersService
+  const date = new Date(Date.now() + 3600000).toISOString()
 
   beforeAll(async () => {
     user = JSON.parse(process.env.jestUser)
@@ -33,6 +34,7 @@ describe('OffersService', () => {
     }).compile()
     moduleService = module.get<OffersService>(OffersService)
     offer = await moduleService.create(user.cpf, service.id, {
+      date,
       minPeople: 1,
       maxPeople: 2,
     })
@@ -48,6 +50,7 @@ describe('OffersService', () => {
       expect(
         validateDto(
           plainToInstance(CreateOfferDto, {
+            date,
             minPeople: 0,
             maxPeople: 1,
           }),
@@ -56,6 +59,7 @@ describe('OffersService', () => {
       expect(
         validateDto(
           plainToInstance(CreateOfferDto, {
+            date,
             minPeople: -1,
             maxPeople: 1,
           }),
@@ -63,6 +67,7 @@ describe('OffersService', () => {
       ).rejects.not.toHaveLength(0),
       expect(
         moduleService.create(user.cpf, service.id, {
+          date,
           minPeople: 2,
           maxPeople: 1,
         }),

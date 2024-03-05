@@ -18,6 +18,9 @@ export class Offer {
   @Column({ name: 'max_people' })
   maxPeople: number
 
+  @Column()
+  date: Date
+
   @ManyToOne(() => Service, {
     nullable: false,
     onDelete: 'CASCADE',

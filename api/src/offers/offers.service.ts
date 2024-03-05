@@ -24,7 +24,7 @@ export class OffersService {
   async create(
     cpf: string,
     id: number,
-    { minPeople, maxPeople }: CreateOfferDto,
+    { minPeople, maxPeople, date }: CreateOfferDto,
   ) {
     await this.servicesService.checkAdmin(cpf, id) // verifica autoridade p/ serviço
 
@@ -34,9 +34,13 @@ export class OffersService {
         'O número máximo de pessoas é menor que o mínimo',
       )
 
+    if (Date.parse(date) < Date.now())
+      throw new ValidationException('date', 'Data inválida')
+
     return this.offersRepository.save({
       minPeople,
       maxPeople,
+      date,
       service: {
         id,
       },

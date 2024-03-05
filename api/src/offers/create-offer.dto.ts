@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger'
-import { IsInt, IsNotEmpty, Min } from 'class-validator'
+import { IsDateString, IsInt, IsNotEmpty, Min } from 'class-validator'
 
 export class CreateOfferDto {
   @ApiProperty()
@@ -13,4 +13,9 @@ export class CreateOfferDto {
   @IsInt({ message: 'Quantidade de pessoas inválida' })
   @IsNotEmpty({ message: 'Digite a quantidade máxima de pessoas' })
   maxPeople: number
+
+  @ApiProperty()
+  @IsDateString()
+  @IsNotEmpty({ message: 'Digite a data e horário' })
+  date: string
 }
