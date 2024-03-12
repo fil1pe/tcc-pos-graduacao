@@ -27,8 +27,8 @@ services:
       PMA_HOST: db
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
 
-  # App:
-  app:
+  # API NestJS:
+  api:
     depends_on:
       - db
     image: nestjs
@@ -43,6 +43,19 @@ services:
       DB_HOST: db
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
       JWT_SECRET: ${JWT_SECRET}
+
+  # App Next.js:
+  web:
+    depends_on:
+      - api
+    image: nextjs
+    volumes:
+      - ./web:/usr/src/web-app
+    build:
+      context: ./web
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
 
 networks:
   default:
