@@ -1,7 +1,11 @@
 import { ThemeOptions, createTheme } from '@mui/material/styles'
 
-let theme = createTheme({})
-
-theme = createTheme(theme, {} as ThemeOptions)
+const theme = createTheme({
+  typography: {
+    h1: {
+      fontSize: '2rem',
+    },
+  },
+})
 
 export { theme }

@@ -7,7 +7,9 @@ import { useContainer } from 'class-validator'
 import { SeederService } from './seeder/seeder.service'
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule)
+  const app = await NestFactory.create(AppModule, {
+    cors: { origin: 'http://localhost:8000' },
+  })
   app.useGlobalPipes(
     new ValidationPipe({
       transform: true,

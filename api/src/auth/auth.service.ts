@@ -1,4 +1,4 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common'
+import { HttpException, Injectable } from '@nestjs/common'
 import { UsersService } from 'src/users/users.service'
 import { JwtService } from '@nestjs/jwt'
 
@@ -21,7 +21,7 @@ export class AuthService {
         accessToken: await this.jwtService.signAsync(payload),
       }
     } catch {
-      throw new UnauthorizedException()
+      throw new HttpException('E-mail ou senha incorretos', 400)
     }
   }
 }
