@@ -3,7 +3,7 @@ import { getCookie, setCookie } from 'cookies-next'
 import { GetServerSideProps } from 'next'
 import { useRouter } from 'next/router'
 import { useForm, SubmitHandler } from 'react-hook-form'
-import { Head } from '~/components'
+import { Head, Link } from '~/components'
 import st from '~/styles/LoginPage.module.styl'
 import { fetch } from '~/utils'
 import { FetchError } from '~/utils/fetch'
@@ -68,6 +68,9 @@ export default function LoginPage() {
           {errors.root && (
             <Typography className={st.error}>{errors.root.message}</Typography>
           )}
+          <Typography>
+            <Link href="/cadastro">Cadastro</Link>
+          </Typography>
           <Button
             variant="contained"
             color="primary"

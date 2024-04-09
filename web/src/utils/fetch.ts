@@ -4,7 +4,7 @@ export async function fetchData<TResponse>(
 ): Promise<TResponse> {
   const response = await fetch('http://localhost:3000/' + path, config)
   const data = await response.json()
-  if (response.status !== 200) {
+  if (response.status !== 200 && response.status !== 201) {
     if (!data.statusCode)
       throw new FetchError(response.status, response.statusText)
     else throw new FetchError(data.statusCode, data.message, data.errors)
