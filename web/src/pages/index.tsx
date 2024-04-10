@@ -1,12 +1,18 @@
 import { GetServerSideProps } from 'next'
 import { deleteCookie, getCookie } from 'cookies-next'
-import { Head } from '~/components'
+import { Head, Layout } from '~/components'
+import { Typography } from '@mui/material'
 import { fetch } from '~/utils'
 
 export default function HomePage() {
   return (
     <>
       <Head />
+      <Layout>
+        <Typography variant="h1">
+          Meus interesses, matches e reservas
+        </Typography>
+      </Layout>
     </>
   )
 }

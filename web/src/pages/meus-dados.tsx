@@ -1,39 +1,42 @@
-import {
-  Button,
-  Container,
-  MenuItem,
-  TextField,
-  Typography,
-} from '@mui/material'
-import { getCookie } from 'cookies-next'
 import { GetServerSideProps } from 'next'
-import { useRouter } from 'next/router'
+import { deleteCookie, getCookie } from 'cookies-next'
+import { Head, Layout } from '~/components'
+import { useContext } from '~/hooks'
 import { SubmitHandler, useForm } from 'react-hook-form'
-import { Head } from '~/components'
-import st from '~/styles/LoginPage.module.styl'
+import moment from 'moment'
+import { Button, MenuItem, TextField, Typography } from '@mui/material'
+import st from '~/styles/Form.module.styl'
 import { fetch } from '~/utils'
 import { FetchError } from '~/utils/fetch'
 
-export default function Register({ cities }: RegisterPageProps) {
-  const router = useRouter()
+export default function UserPage({ user, cities }: UserPageProps) {
+  const { setSnackbar } = useContext()
 
   const {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
     setError,
-  } = useForm<RegisterInputs>()
+  } = useForm<UserInputs>({
+    defaultValues: {
+      ...user,
+      city: user.city.id,
+      birthDate: moment(user.birthDate, 'YYYY-MM-DD').format('DD/MM/YYYY'),
+    },
+  })
 
-  const onSubmit: SubmitHandler<RegisterInputs> = async (data) => {
+  const onSubmit: SubmitHandler<UserInputs> = async (data) => {
     try {
-      await fetch<{ accessToken: string }>('users', {
-        method: 'post',
-        body: JSON.stringify({ ...data, cpf: data.cpf.replace(/\D/g, '') }),
+      const jwt = getCookie('user-token')
+      await fetch('users/me', {
+        method: 'PATCH',
+        body: JSON.stringify(data),
         headers: {
+          Authorization: `Bearer ${jwt}`,
           'Content-Type': 'application/json',
         },
       })
-      router.push('/login')
+      setSnackbar('Dados alterados com sucesso')
     } catch (err) {
       let message = 'Erro desconhecido'
       if (err instanceof FetchError) {
@@ -54,56 +57,37 @@ export default function Register({ cities }: RegisterPageProps) {
   return (
     <>
       <Head />
-      <Container maxWidth="xs" className={st.root}>
-        <Typography variant="h1">Cadastro</Typography>
+      <Layout>
+        <Typography variant="h1">Meus dados</Typography>
         <form onSubmit={handleSubmit(onSubmit)} className={st.form}>
           <TextField
             label="Nome"
             variant="outlined"
-            className={st.textField}
             required
             {...register('name')}
           />
           {errors.name && (
-            <Typography className={st.errorField}>
-              {errors.name.message}
-            </Typography>
-          )}
-          <TextField
-            label="CPF"
-            variant="outlined"
-            className={st.textField}
-            required
-            {...register('cpf')}
-          />
-          {errors.cpf && (
-            <Typography className={st.errorField}>
-              {errors.cpf.message}
-            </Typography>
+            <Typography className={st.error}>{errors.name.message}</Typography>
           )}
           <TextField
             label="E-mail"
             type="email"
             variant="outlined"
-            className={st.textField}
             required
             {...register('email')}
           />
           {errors.email && (
-            <Typography className={st.errorField}>
-              {errors.email.message}
-            </Typography>
+            <Typography className={st.error}>{errors.email.message}</Typography>
           )}
           <TextField
             label="Senha"
             type="password"
             variant="outlined"
-            className={st.textField}
             required
             {...register('password')}
           />
           {errors.password && (
-            <Typography className={st.errorField}>
+            <Typography className={st.error}>
               {errors.password.message}
             </Typography>
           )}
@@ -111,33 +95,31 @@ export default function Register({ cities }: RegisterPageProps) {
             label="Data de nascimento"
             placeholder="DD/MM/AAAA"
             variant="outlined"
-            className={st.textField}
             required
             {...register('birthDate')}
           />
           {errors.birthDate && (
-            <Typography className={st.errorField}>
+            <Typography className={st.error}>
               {errors.birthDate.message}
             </Typography>
           )}
           <TextField
             label="Endereço"
             variant="outlined"
-            className={st.textField}
             required
             {...register('address')}
           />
           {errors.address && (
-            <Typography className={st.errorField}>
+            <Typography className={st.error}>
               {errors.address.message}
             </Typography>
           )}
           <TextField
             label="Cidade"
             variant="outlined"
-            className={st.textField}
             required
             select
+            defaultValue={user.city.id}
             {...register('city')}
           >
             {cities.map(({ id, name }) => (
@@ -147,9 +129,7 @@ export default function Register({ cities }: RegisterPageProps) {
             ))}
           </TextField>
           {errors.city && (
-            <Typography className={st.errorField}>
-              {errors.city.message}
-            </Typography>
+            <Typography className={st.error}>{errors.city.message}</Typography>
           )}
           {errors.root && (
             <Typography className={st.error}>{errors.root.message}</Typography>
@@ -160,17 +140,16 @@ export default function Register({ cities }: RegisterPageProps) {
             type="submit"
             className={st.button}
           >
-            {isSubmitting ? 'Carrgando...' : 'Entrar'}
+            {isSubmitting ? 'Enviando...' : 'Enviar'}
           </Button>
         </form>
-      </Container>
+      </Layout>
     </>
   )
 }
 
-interface RegisterInputs {
+interface UserInputs {
   name: string
-  cpf: string
   email: string
   password: string
   birthDate: string
@@ -179,35 +158,48 @@ interface RegisterInputs {
 }
 
 declare global {
-  interface City {
-    id: number
+  interface User {
     name: string
-    uf: string
+    email: string
+    birthDate: string
+    address: string
+    city: City
   }
 }
 
-interface RegisterPageProps {
+interface UserPageProps {
+  user: User
   cities: City[]
 }
 
-export const getServerSideProps: GetServerSideProps<RegisterPageProps> = async (
+export const getServerSideProps: GetServerSideProps<UserPageProps> = async (
   context
 ) => {
-  const jwt = getCookie('user-token', context)
+  try {
+    const jwt = getCookie('user-token', context)
 
-  if (jwt)
+    const [user, cities] = await Promise.all([
+      fetch<User>('users/me', {
+        headers: {
+          Authorization: `Bearer ${jwt}`,
+        },
+      }),
+      fetch<City[]>('cities'),
+    ])
+
+    return {
+      props: {
+        user,
+        cities,
+      },
+    }
+  } catch {
+    deleteCookie('user-token', context)
     return {
       redirect: {
-        destination: '/',
+        destination: '/login',
         permanent: false,
       },
     }
-
-  const cities = await fetch<City[]>('cities')
-
-  return {
-    props: {
-      cities,
-    },
   }
 }

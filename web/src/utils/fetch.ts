@@ -3,7 +3,12 @@ export async function fetchData<TResponse>(
   config?: RequestInit
 ): Promise<TResponse> {
   const response = await fetch('http://localhost:3000/' + path, config)
-  const data = await response.json()
+
+  let data: any = {}
+  try {
+    data = await response.json()
+  } catch {}
+
   if (response.status !== 200 && response.status !== 201) {
     if (!data.statusCode)
       throw new FetchError(response.status, response.statusText)
