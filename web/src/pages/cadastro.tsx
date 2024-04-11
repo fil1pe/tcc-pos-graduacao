@@ -187,12 +187,7 @@ export default function Register({ cities }: RegisterPageProps) {
               <Typography>
                 Já tem cadastro? Entre <Link href="/login">aqui</Link>.
               </Typography>
-              <Button
-                variant="contained"
-                color="primary"
-                type="submit"
-                className={st.button}
-              >
+              <Button variant="contained" type="submit" className={st.button}>
                 {isSubmitting ? 'Enviando...' : 'Enviar'}
               </Button>
             </form>
@@ -214,9 +209,12 @@ interface RegisterInputs {
 }
 
 declare global {
-  interface City {
+  interface ApiOption {
     id: number
     name: string
+  }
+
+  interface City extends ApiOption {
     uf: string
   }
 }

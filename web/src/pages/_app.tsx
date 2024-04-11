@@ -4,6 +4,9 @@ import { createContext, useState } from 'react'
 import { AppProps } from 'next/app'
 import { Snackbar, ThemeProvider } from '@mui/material'
 import { CacheProvider } from '@emotion/react'
+import { LocalizationProvider } from '@mui/x-date-pickers'
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
+import { ptBR } from '@mui/x-date-pickers/locales'
 import { createEmotionCache, theme } from '~/utils'
 import Router from 'next/router'
 import NProgress from 'nprogress'
@@ -30,16 +33,23 @@ export default function App({
   return (
     <CacheProvider value={emotionCache}>
       <ThemeProvider theme={theme}>
-        <context.Provider value={{ setSnackbar }}>
-          <Component {...pageProps} />
-          <Snackbar
-            open={!!snackbar}
-            autoHideDuration={6000}
-            onClose={() => setSnackbar('')}
-            message={snackbar}
-            anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-          />
-        </context.Provider>
+        <LocalizationProvider
+          dateAdapter={AdapterDayjs}
+          localeText={
+            ptBR.components.MuiLocalizationProvider.defaultProps.localeText
+          }
+        >
+          <context.Provider value={{ setSnackbar }}>
+            <Component {...pageProps} />
+            <Snackbar
+              open={!!snackbar}
+              autoHideDuration={6000}
+              onClose={() => setSnackbar('')}
+              message={snackbar}
+              anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+            />
+          </context.Provider>
+        </LocalizationProvider>
       </ThemeProvider>
     </CacheProvider>
   )

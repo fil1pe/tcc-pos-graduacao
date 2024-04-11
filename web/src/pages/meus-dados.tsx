@@ -155,12 +155,7 @@ export default function UserPage({ user, cities }: UserPageProps) {
           {errors.root && (
             <Typography className={st.error}>{errors.root.message}</Typography>
           )}
-          <Button
-            variant="contained"
-            color="primary"
-            type="submit"
-            className={st.button}
-          >
+          <Button variant="contained" type="submit" className={st.button}>
             {isSubmitting ? 'Enviando...' : 'Enviar'}
           </Button>
         </form>
