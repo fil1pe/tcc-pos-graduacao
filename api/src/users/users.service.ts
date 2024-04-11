@@ -80,8 +80,22 @@ export class UsersService {
 
   // Altera dados do usuário:
   async update(cpf: string, updateUserDto: UpdateUserDto) {
-    await updateUserDto.encryptPassword() // encripta senha
-    const { name, password, email, birthDate, address, city } = updateUserDto
+    await updateUserDto.encryptPasswords() // encripta senha
+    const { name, currentPassword, password, email, birthDate, address, city } =
+      updateUserDto
+
+    const userData = await this.usersRepository.findOne({
+      where: {
+        cpf,
+      },
+    })
+
+    // Verifica a senha atual:
+    if (!(await bcrypt.compare(currentPassword, userData.password)))
+      throw new ValidationException(
+        'currentPassword',
+        'Essa não é sua senha atual',
+      )
 
     // Verifica duplicidade de e-mail:
     if (

@@ -41,13 +41,15 @@ export default function UserPage({ user, cities }: UserPageProps) {
       let message = 'Erro desconhecido'
       if (err instanceof FetchError) {
         message = err.message
-        Object.entries(err.errors || {}).map(([name, message]) => {
+        Object.entries(err.errors || {}).map(([name, fieldMessage]) => {
+          if (message === fieldMessage) message = ''
           setError(name as never, {
-            message,
+            message: fieldMessage,
           })
         })
       }
-      message !== 'Corrija os erros e tente novamente' &&
+      message &&
+        message !== 'Corrija os erros e tente novamente' &&
         setError('root', {
           message,
         })
@@ -64,6 +66,7 @@ export default function UserPage({ user, cities }: UserPageProps) {
             label="Nome"
             variant="outlined"
             required
+            error={!!errors.name}
             {...register('name')}
           />
           {errors.name && (
@@ -74,16 +77,31 @@ export default function UserPage({ user, cities }: UserPageProps) {
             type="email"
             variant="outlined"
             required
+            error={!!errors.email}
             {...register('email')}
           />
           {errors.email && (
             <Typography className={st.error}>{errors.email.message}</Typography>
           )}
           <TextField
-            label="Senha"
+            label="Senha atual"
             type="password"
             variant="outlined"
             required
+            error={!!errors.currentPassword}
+            {...register('currentPassword')}
+          />
+          {errors.currentPassword && (
+            <Typography className={st.error}>
+              {errors.currentPassword.message}
+            </Typography>
+          )}
+          <TextField
+            label="Nova senha"
+            type="password"
+            variant="outlined"
+            required
+            error={!!errors.password}
             {...register('password')}
           />
           {errors.password && (
@@ -96,6 +114,7 @@ export default function UserPage({ user, cities }: UserPageProps) {
             placeholder="DD/MM/AAAA"
             variant="outlined"
             required
+            error={!!errors.birthDate}
             {...register('birthDate')}
           />
           {errors.birthDate && (
@@ -107,6 +126,7 @@ export default function UserPage({ user, cities }: UserPageProps) {
             label="Endereço"
             variant="outlined"
             required
+            error={!!errors.address}
             {...register('address')}
           />
           {errors.address && (
@@ -120,6 +140,7 @@ export default function UserPage({ user, cities }: UserPageProps) {
             required
             select
             defaultValue={user.city.id}
+            error={!!errors.city}
             {...register('city')}
           >
             {cities.map(({ id, name }) => (
@@ -151,6 +172,7 @@ export default function UserPage({ user, cities }: UserPageProps) {
 interface UserInputs {
   name: string
   email: string
+  currentPassword: string
   password: string
   birthDate: string
   address: string
