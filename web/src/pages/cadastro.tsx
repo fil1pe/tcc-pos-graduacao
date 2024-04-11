@@ -1,15 +1,19 @@
 import {
+  AppBar,
+  Box,
   Button,
   Container,
+  CssBaseline,
   MenuItem,
   TextField,
+  Toolbar,
   Typography,
 } from '@mui/material'
 import { getCookie } from 'cookies-next'
 import { GetServerSideProps } from 'next'
 import { useRouter } from 'next/router'
 import { SubmitHandler, useForm } from 'react-hook-form'
-import { Head } from '~/components'
+import { Head, Link } from '~/components'
 import st from '~/styles/LoginPage.module.styl'
 import { fetch } from '~/utils'
 import { FetchError } from '~/utils/fetch'
@@ -38,13 +42,15 @@ export default function Register({ cities }: RegisterPageProps) {
       let message = 'Erro desconhecido'
       if (err instanceof FetchError) {
         message = err.message
-        Object.entries(err.errors || {}).map(([name, message]) => {
+        Object.entries(err.errors || {}).map(([name, fieldMessage]) => {
+          if (message === fieldMessage) message = ''
           setError(name as never, {
-            message,
+            message: fieldMessage,
           })
         })
       }
-      message !== 'Corrija os erros e tente novamente' &&
+      message &&
+        message !== 'Corrija os erros e tente novamente' &&
         setError('root', {
           message,
         })
@@ -54,116 +60,145 @@ export default function Register({ cities }: RegisterPageProps) {
   return (
     <>
       <Head />
-      <Container maxWidth="xs" className={st.root}>
-        <Typography variant="h1">Cadastro</Typography>
-        <form onSubmit={handleSubmit(onSubmit)} className={st.form}>
-          <TextField
-            label="Nome"
-            variant="outlined"
-            className={st.textField}
-            required
-            {...register('name')}
-          />
-          {errors.name && (
-            <Typography className={st.errorField}>
-              {errors.name.message}
+      <Box>
+        <CssBaseline />
+        <AppBar
+          position="fixed"
+          sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}
+        >
+          <Toolbar>
+            <Typography variant="h6" noWrap component="div">
+              Nome do site
             </Typography>
-          )}
-          <TextField
-            label="CPF"
-            variant="outlined"
-            className={st.textField}
-            required
-            {...register('cpf')}
-          />
-          {errors.cpf && (
-            <Typography className={st.errorField}>
-              {errors.cpf.message}
-            </Typography>
-          )}
-          <TextField
-            label="E-mail"
-            type="email"
-            variant="outlined"
-            className={st.textField}
-            required
-            {...register('email')}
-          />
-          {errors.email && (
-            <Typography className={st.errorField}>
-              {errors.email.message}
-            </Typography>
-          )}
-          <TextField
-            label="Senha"
-            type="password"
-            variant="outlined"
-            className={st.textField}
-            required
-            {...register('password')}
-          />
-          {errors.password && (
-            <Typography className={st.errorField}>
-              {errors.password.message}
-            </Typography>
-          )}
-          <TextField
-            label="Data de nascimento"
-            placeholder="DD/MM/AAAA"
-            variant="outlined"
-            className={st.textField}
-            required
-            {...register('birthDate')}
-          />
-          {errors.birthDate && (
-            <Typography className={st.errorField}>
-              {errors.birthDate.message}
-            </Typography>
-          )}
-          <TextField
-            label="Endereço"
-            variant="outlined"
-            className={st.textField}
-            required
-            {...register('address')}
-          />
-          {errors.address && (
-            <Typography className={st.errorField}>
-              {errors.address.message}
-            </Typography>
-          )}
-          <TextField
-            label="Cidade"
-            variant="outlined"
-            className={st.textField}
-            required
-            select
-            {...register('city')}
-          >
-            {cities.map(({ id, name }) => (
-              <MenuItem value={id} key={id}>
-                {name}
-              </MenuItem>
-            ))}
-          </TextField>
-          {errors.city && (
-            <Typography className={st.errorField}>
-              {errors.city.message}
-            </Typography>
-          )}
-          {errors.root && (
-            <Typography className={st.error}>{errors.root.message}</Typography>
-          )}
-          <Button
-            variant="contained"
-            color="primary"
-            type="submit"
-            className={st.button}
-          >
-            {isSubmitting ? 'Carrgando...' : 'Entrar'}
-          </Button>
-        </form>
-      </Container>
+          </Toolbar>
+        </AppBar>
+
+        <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
+          <Toolbar />
+          <Container className={st.root}>
+            <Typography variant="h1">Cadastro</Typography>
+            <form onSubmit={handleSubmit(onSubmit)} className={st.form}>
+              <TextField
+                label="Nome"
+                variant="outlined"
+                className={st.textField}
+                required
+                error={!!errors.name}
+                {...register('name')}
+              />
+              {errors.name && (
+                <Typography className={st.error}>
+                  {errors.name.message}
+                </Typography>
+              )}
+              <TextField
+                label="CPF"
+                variant="outlined"
+                className={st.textField}
+                required
+                error={!!errors.cpf}
+                {...register('cpf')}
+              />
+              {errors.cpf && (
+                <Typography className={st.error}>
+                  {errors.cpf.message}
+                </Typography>
+              )}
+              <TextField
+                label="E-mail"
+                type="email"
+                variant="outlined"
+                className={st.textField}
+                required
+                error={!!errors.email}
+                {...register('email')}
+              />
+              {errors.email && (
+                <Typography className={st.error}>
+                  {errors.email.message}
+                </Typography>
+              )}
+              <TextField
+                label="Senha"
+                type="password"
+                variant="outlined"
+                className={st.textField}
+                required
+                error={!!errors.password}
+                {...register('password')}
+              />
+              {errors.password && (
+                <Typography className={st.error}>
+                  {errors.password.message}
+                </Typography>
+              )}
+              <TextField
+                label="Data de nascimento"
+                placeholder="DD/MM/AAAA"
+                variant="outlined"
+                className={st.textField}
+                required
+                error={!!errors.birthDate}
+                {...register('birthDate')}
+              />
+              {errors.birthDate && (
+                <Typography className={st.error}>
+                  {errors.birthDate.message}
+                </Typography>
+              )}
+              <TextField
+                label="Endereço"
+                variant="outlined"
+                className={st.textField}
+                required
+                error={!!errors.address}
+                {...register('address')}
+              />
+              {errors.address && (
+                <Typography className={st.error}>
+                  {errors.address.message}
+                </Typography>
+              )}
+              <TextField
+                label="Cidade"
+                variant="outlined"
+                className={st.textField}
+                required
+                select
+                error={!!errors.city}
+                {...register('city')}
+              >
+                {cities.map(({ id, name }) => (
+                  <MenuItem value={id} key={id}>
+                    {name}
+                  </MenuItem>
+                ))}
+              </TextField>
+              {errors.city && (
+                <Typography className={st.error}>
+                  {errors.city.message}
+                </Typography>
+              )}
+              {errors.root && (
+                <Typography className={st.error}>
+                  {errors.root.message}
+                </Typography>
+              )}
+              <Typography>
+                Já tem cadastro? Entre <Link href="/login">aqui</Link>.
+              </Typography>
+              <Button
+                variant="contained"
+                color="primary"
+                type="submit"
+                className={st.button}
+              >
+                {isSubmitting ? 'Enviando...' : 'Enviar'}
+              </Button>
+            </form>
+          </Container>
+        </Box>
+      </Box>
     </>
   )
 }

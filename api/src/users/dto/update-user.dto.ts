@@ -12,14 +12,7 @@ export class UpdateUserDto extends OmitType(PartialType(CreateUserDto), [
   currentPassword: string
 
   // Encripta senha:
-  async encryptPasswords() {
-    await Promise.all([
-      async () => {
-        this.password = await encrypt(this.password)
-      },
-      async () => {
-        this.currentPassword = await encrypt(this.currentPassword)
-      },
-    ])
+  async encryptPassword() {
+    this.password = await encrypt(this.password)
   }
 }

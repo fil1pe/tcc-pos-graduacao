@@ -80,7 +80,7 @@ export class UsersService {
 
   // Altera dados do usuário:
   async update(cpf: string, updateUserDto: UpdateUserDto) {
-    await updateUserDto.encryptPasswords() // encripta senha
+    await updateUserDto.encryptPassword() // encripta senha
     const { name, currentPassword, password, email, birthDate, address, city } =
       updateUserDto
 

@@ -1,4 +1,13 @@
-import { Button, Container, TextField, Typography } from '@mui/material'
+import {
+  AppBar,
+  Box,
+  Button,
+  Container,
+  CssBaseline,
+  TextField,
+  Toolbar,
+  Typography,
+} from '@mui/material'
 import { getCookie, setCookie } from 'cookies-next'
 import { GetServerSideProps } from 'next'
 import { useRouter } from 'next/router'
@@ -46,41 +55,53 @@ export default function LoginPage() {
   return (
     <>
       <Head />
-      <Container maxWidth="xs" className={st.root}>
-        <Typography variant="h1">Login</Typography>
-        <form onSubmit={handleSubmit(onSubmit)} className={st.form}>
-          <TextField
-            label="E-mail"
-            type="email"
-            variant="outlined"
-            className={st.textField}
-            required
-            {...register('email')}
-          />
-          <TextField
-            label="Senha"
-            type="password"
-            variant="outlined"
-            className={st.textField}
-            required
-            {...register('password')}
-          />
-          {errors.root && (
-            <Typography className={st.error}>{errors.root.message}</Typography>
-          )}
-          <Typography>
-            <Link href="/cadastro">Cadastro</Link>
-          </Typography>
-          <Button
-            variant="contained"
-            color="primary"
-            type="submit"
-            className={st.button}
-          >
-            {isSubmitting ? 'Carrgando...' : 'Entrar'}
-          </Button>
-        </form>
-      </Container>
+      <Box>
+        <CssBaseline />
+        <AppBar
+          position="fixed"
+          sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}
+        >
+          <Toolbar>
+            <Typography variant="h6" noWrap component="div">
+              Nome do site
+            </Typography>
+          </Toolbar>
+        </AppBar>
+
+        <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
+          <Toolbar />
+          <Container className={st.root}>
+            <Typography variant="h1">Login</Typography>
+            <form onSubmit={handleSubmit(onSubmit)} className={st.form}>
+              <TextField
+                label="E-mail"
+                type="email"
+                variant="outlined"
+                required
+                {...register('email')}
+              />
+              <TextField
+                label="Senha"
+                type="password"
+                variant="outlined"
+                required
+                {...register('password')}
+              />
+              {errors.root && (
+                <Typography className={st.error}>
+                  {errors.root.message}
+                </Typography>
+              )}
+              <Typography>
+                Novo por aqui? Cadastre-se <Link href="/cadastro">aqui</Link>.
+              </Typography>
+              <Button variant="contained" color="primary" type="submit">
+                {isSubmitting ? 'Carrgando...' : 'Entrar'}
+              </Button>
+            </form>
+          </Container>
+        </Box>
+      </Box>
     </>
   )
 }
