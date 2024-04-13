@@ -32,7 +32,7 @@ export function Layout({ children }: { children: ReactNode }) {
       >
         <Toolbar>
           <Typography variant="h6" noWrap component="div">
-            Nome do site
+            BookMyLuck
           </Typography>
         </Toolbar>
       </AppBar>

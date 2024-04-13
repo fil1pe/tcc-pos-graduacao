@@ -63,7 +63,7 @@ export default function LoginPage() {
         >
           <Toolbar>
             <Typography variant="h6" noWrap component="div">
-              Nome do site
+              BookMyLuck
             </Typography>
           </Toolbar>
         </AppBar>

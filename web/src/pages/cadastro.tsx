@@ -68,7 +68,7 @@ export default function Register({ cities }: RegisterPageProps) {
         >
           <Toolbar>
             <Typography variant="h6" noWrap component="div">
-              Nome do site
+              BookMyLuck
             </Typography>
           </Toolbar>
         </AppBar>
