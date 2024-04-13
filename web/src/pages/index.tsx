@@ -171,7 +171,56 @@ export default function HomePage({
                     </TableCell>
                     <TableCell align="right">
                       {match && !match.reserved && (
-                        <IconButton>
+                        <IconButton
+                          onClick={async () => {
+                            if (locked) return
+                            setLocked(true)
+                            setInterests(
+                              interests.map((interest) => {
+                                if (interest.id !== id) return interest
+                                return {
+                                  ...interest,
+                                  loading: true,
+                                }
+                              })
+                            )
+                            try {
+                              await fetch(`interests/${id}/reserve`, {
+                                method: 'POST',
+                                headers: {
+                                  Authorization: `Bearer ${jwt}`,
+                                },
+                              })
+                              setInterests(
+                                interests.map((interest) => {
+                                  if (interest.id !== id) return interest
+                                  return {
+                                    ...interest,
+                                    loading: false,
+                                    match: {
+                                      ...interest.match!,
+                                      reserved: true,
+                                    },
+                                  }
+                                })
+                              )
+                              setSnackbar('Reserva efetuada com sucesso')
+                            } catch (err) {
+                              console.error(err)
+                              if (err instanceof Error) setSnackbar(err.message)
+                              setInterests(
+                                interests.map((interest) => {
+                                  if (interest.id !== id) return interest
+                                  return {
+                                    ...interest,
+                                    loading: false,
+                                  }
+                                })
+                              )
+                            }
+                            setLocked(false)
+                          }}
+                        >
                           <BookmarkBorderIcon />
                         </IconButton>
                       )}
@@ -203,6 +252,7 @@ export default function HomePage({
                             setInterests(
                               interests.filter((interest) => interest.id !== id)
                             )
+                            setSnackbar('Interesse removido com sucesso')
                           } catch (err) {
                             console.error(err)
                             if (err instanceof Error) setSnackbar(err.message)
