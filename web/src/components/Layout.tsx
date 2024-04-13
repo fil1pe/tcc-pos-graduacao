@@ -13,6 +13,8 @@ import {
   ListItemText,
   Toolbar,
   Typography,
+  useMediaQuery,
+  useTheme,
 } from '@mui/material'
 import LogoutIcon from '@mui/icons-material/Logout'
 import PersonIcon from '@mui/icons-material/Person'
@@ -20,6 +22,8 @@ import RoomServiceIcon from '@mui/icons-material/RoomService'
 import { deleteCookie } from 'cookies-next'
 
 export function Layout({ children }: { children: ReactNode }) {
+  const theme = useTheme()
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'))
   const pathname = usePathname() || ''
   const router = useRouter()
 
@@ -39,13 +43,15 @@ export function Layout({ children }: { children: ReactNode }) {
       <Drawer
         variant="permanent"
         sx={{
-          width: 240,
+          width: isMobile ? 56 : 240,
           flexShrink: 0,
-          [`& .MuiDrawer-paper`]: { width: 240, boxSizing: 'border-box' },
+          [`& .MuiDrawer-paper`]: {
+            width: isMobile ? 56 : 240,
+          },
         }}
       >
         <Toolbar />
-        <Box sx={{ overflow: 'auto' }}>
+        <Box sx={{ overflowY: 'auto', overflowX: 'hidden' }}>
           <List>
             <ListItem disablePadding>
               <ListItemButton
@@ -55,7 +61,7 @@ export function Layout({ children }: { children: ReactNode }) {
                 <ListItemIcon>
                   <RoomServiceIcon />
                 </ListItemIcon>
-                <ListItemText primary="Reservas" />
+                {!isMobile && <ListItemText primary="Reservas" />}
               </ListItemButton>
             </ListItem>
           </List>
@@ -69,7 +75,7 @@ export function Layout({ children }: { children: ReactNode }) {
                 <ListItemIcon>
                   <PersonIcon />
                 </ListItemIcon>
-                <ListItemText primary="Meus dados" />
+                {!isMobile && <ListItemText primary="Meus dados" />}
               </ListItemButton>
             </ListItem>
             <ListItem disablePadding>
@@ -82,13 +88,13 @@ export function Layout({ children }: { children: ReactNode }) {
                 <ListItemIcon>
                   <LogoutIcon />
                 </ListItemIcon>
-                <ListItemText primary="Sair" />
+                {!isMobile && <ListItemText primary="Sair" />}
               </ListItemButton>
             </ListItem>
           </List>
         </Box>
       </Drawer>
-      <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
+      <Box component="main" sx={{ flexGrow: 1, p: 3, minWidth: 0 }}>
         <Toolbar />
         {children}
       </Box>
