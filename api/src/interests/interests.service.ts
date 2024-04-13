@@ -4,6 +4,10 @@ import { InjectRepository } from '@nestjs/typeorm'
 import { Interest } from './interest.entity'
 import { Repository } from 'typeorm'
 import { Match } from 'src/matches/match.entity'
+import { Offer } from 'src/offers/offer.entity'
+import { Service } from 'src/services/service.entity'
+import { Establishment } from 'src/establishments/establishment.entity'
+import { City } from 'src/cities/city.entity'
 import { ValidationException } from 'src/helpers/validation-exception.helper'
 import { ServiceType } from 'src/service-types/service-type.entity'
 
@@ -73,6 +77,30 @@ export class InterestsService {
         Match,
         'matches',
         'matches.interest = interests.id',
+      )
+      .leftJoinAndMapOne(
+        'matches.offer',
+        Offer,
+        'offers',
+        'matches.offer = offers.id',
+      )
+      .leftJoinAndMapOne(
+        'offers.service',
+        Service,
+        'services',
+        'offers.service = services.id',
+      )
+      .leftJoinAndMapOne(
+        'services.establishment',
+        Establishment,
+        'establishments',
+        'services.establishment = establishments.cnpj',
+      )
+      .leftJoinAndMapOne(
+        'establishments.city',
+        City,
+        'cities',
+        'establishments.city = cities.id',
       )
       .where('interests.user = :cpf', { cpf })
   }

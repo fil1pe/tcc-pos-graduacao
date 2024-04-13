@@ -18,14 +18,15 @@ import {
 } from '@mui/material'
 import { DateTimePicker } from '@mui/x-date-pickers'
 import AddIcon from '@mui/icons-material/Add'
+import BookmarkBorderIcon from '@mui/icons-material/BookmarkBorder'
+import BookmarkIcon from '@mui/icons-material/Bookmark'
 import DeleteIcon from '@mui/icons-material/Delete'
 import PendingIcon from '@mui/icons-material/Pending'
-import { fetch } from '~/utils'
+import { fetch, formatDate } from '~/utils'
 import { FetchError } from '~/utils/fetch'
 import { useContext } from '~/hooks'
 import { SubmitHandler, useForm } from 'react-hook-form'
 import st from '~/styles/Form.module.styl'
-import moment from 'moment'
 
 export default function HomePage({
   interests: _interests,
@@ -128,6 +129,7 @@ export default function HomePage({
                   minPrice,
                   maxPrice,
                   people,
+                  match,
                   loading,
                 }) => (
                   <TableRow
@@ -142,17 +144,42 @@ export default function HomePage({
                   >
                     <TableCell>{serviceType.name}</TableCell>
                     <TableCell align="right">
-                      R$ {minPrice} - {maxPrice}
+                      R${' '}
+                      {match
+                        ? match.offer.service.price
+                        : minPrice + ' - ' + maxPrice}
                     </TableCell>
                     <TableCell align="right">
-                      {moment(minDate).format('DD/MM/YYYY - HH:mm')} -{' '}
-                      {moment(maxDate).format('DD/MM/YYYY - HH:mm')}
+                      {match
+                        ? formatDate(match.offer.date)
+                        : formatDate(minDate) + ' - ' + formatDate(maxDate)}
                     </TableCell>
                     <TableCell align="right">{people}</TableCell>
                     <TableCell align="right">
-                      <PendingIcon titleAccess="Pendente" />
+                      {match ? (
+                        <>
+                          {match.offer.service.establishment.name}
+                          <br />
+                          {match.offer.service.establishment.address}
+                          <br />
+                          {match.offer.service.establishment.city.name},{' '}
+                          {match.offer.service.establishment.city.uf}
+                        </>
+                      ) : (
+                        <PendingIcon titleAccess="Pendente" />
+                      )}
                     </TableCell>
                     <TableCell align="right">
+                      {match && !match.reserved && (
+                        <IconButton>
+                          <BookmarkBorderIcon />
+                        </IconButton>
+                      )}
+                      {match?.reserved && (
+                        <IconButton disabled>
+                          <BookmarkIcon />
+                        </IconButton>
+                      )}
                       <IconButton
                         onClick={async () => {
                           if (locked) return
@@ -350,6 +377,33 @@ interface InterestInputs {
 }
 
 declare global {
+  interface Establishment {
+    cnpj: string
+    name: string
+    address: string
+    city: City
+  }
+
+  interface Service {
+    id: number
+    price: string
+    establishment: Establishment
+  }
+
+  interface Offer {
+    id: number
+    date: string
+    minPeople: number
+    maxPeople: number
+    service: Service
+  }
+
+  interface Match {
+    interest: number
+    offer: Offer
+    reserved: boolean
+  }
+
   interface Interest {
     id: number
     serviceType: ApiOption
@@ -358,7 +412,7 @@ declare global {
     minDate: string
     maxDate: string
     people: number
-    match: null
+    match: Match | null
   }
 }
 

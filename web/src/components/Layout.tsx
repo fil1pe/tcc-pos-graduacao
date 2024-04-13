@@ -16,9 +16,9 @@ import {
   useMediaQuery,
   useTheme,
 } from '@mui/material'
+import BookmarkIcon from '@mui/icons-material/Bookmark'
 import LogoutIcon from '@mui/icons-material/Logout'
 import PersonIcon from '@mui/icons-material/Person'
-import RoomServiceIcon from '@mui/icons-material/RoomService'
 import { deleteCookie } from 'cookies-next'
 
 export function Layout({ children }: { children: ReactNode }) {
@@ -59,7 +59,7 @@ export function Layout({ children }: { children: ReactNode }) {
                 onClick={() => router.push('/')}
               >
                 <ListItemIcon>
-                  <RoomServiceIcon />
+                  <BookmarkIcon />
                 </ListItemIcon>
                 {!isMobile && <ListItemText primary="Reservas" />}
               </ListItemButton>
