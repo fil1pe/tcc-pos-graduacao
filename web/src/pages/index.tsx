@@ -2,17 +2,39 @@ import { useState } from 'react'
 import { GetServerSideProps } from 'next'
 import { deleteCookie, getCookie } from 'cookies-next'
 import { Head, Layout } from '~/components'
-import { Button, MenuItem, TextField, Typography } from '@mui/material'
+import {
+  Button,
+  IconButton,
+  MenuItem,
+  Paper,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  TextField,
+  Typography,
+} from '@mui/material'
 import { DateTimePicker } from '@mui/x-date-pickers'
 import AddIcon from '@mui/icons-material/Add'
+import DeleteIcon from '@mui/icons-material/Delete'
+import PendingIcon from '@mui/icons-material/Pending'
 import { fetch } from '~/utils'
 import { FetchError } from '~/utils/fetch'
 import { useContext } from '~/hooks'
 import { SubmitHandler, useForm } from 'react-hook-form'
 import st from '~/styles/Form.module.styl'
+import moment from 'moment'
 
-export default function HomePage({ serviceTypes }: HomePageProps) {
+export default function HomePage({
+  interests: _interests,
+  serviceTypes,
+}: HomePageProps) {
+  const [interests, setInterests] =
+    useState<(Interest & { loading?: boolean })[]>(_interests)
   const [formVisible, setFormVisible] = useState(false)
+  const [locked, setLocked] = useState(false)
 
   const { setSnackbar } = useContext()
 
@@ -28,10 +50,15 @@ export default function HomePage({ serviceTypes }: HomePageProps) {
   const minDateProps = register('minDate')
   const maxDateProps = register('maxDate')
 
+  const jwt = getCookie('user-token')
+
   const onSubmit: SubmitHandler<InterestInputs> = async (data) => {
     try {
-      const jwt = getCookie('user-token')
-      await fetch('interests', {
+      const interest = await fetch<
+        Omit<Omit<Interest, 'match'>, 'serviceType'> & {
+          serviceType: { id: number }
+        }
+      >('interests', {
         method: 'POST',
         body: JSON.stringify({ ...data, people: Number(data.people) }),
         headers: {
@@ -39,6 +66,16 @@ export default function HomePage({ serviceTypes }: HomePageProps) {
           'Content-Type': 'application/json',
         },
       })
+      setInterests([
+        ...interests,
+        {
+          ...interest,
+          minPrice: Number(interest.minPrice).toFixed(2),
+          maxPrice: Number(interest.maxPrice).toFixed(2),
+          serviceType: serviceTypes.find(({ id }) => id === data.serviceType)!,
+          match: null,
+        },
+      ])
       setSnackbar('Interesse registrado com sucesso')
       setFormVisible(false)
       reset()
@@ -69,8 +106,109 @@ export default function HomePage({ serviceTypes }: HomePageProps) {
           Meus interesses, matches e reservas
         </Typography>
 
+        <TableContainer component={Paper} className={st.table}>
+          <Table>
+            <TableHead>
+              <TableRow>
+                <TableCell>Serviço</TableCell>
+                <TableCell align="right">Preço</TableCell>
+                <TableCell align="right">Data e horário</TableCell>
+                <TableCell align="right">Qtde. pessoas</TableCell>
+                <TableCell align="right">Estabelecimento</TableCell>
+                <TableCell align="right"></TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {interests.map(
+                ({
+                  id,
+                  serviceType,
+                  minDate,
+                  maxDate,
+                  minPrice,
+                  maxPrice,
+                  people,
+                  loading,
+                }) => (
+                  <TableRow
+                    key={id}
+                    sx={{
+                      '&:last-child td, &:last-child th': { border: 0 },
+                      transition:
+                        'opacity 150ms cubic-bezier(0.4, 0, 0.2, 1) 0ms',
+                      pointerEvents: loading ? 'none' : 'auto',
+                      opacity: loading ? 0.5 : 1,
+                    }}
+                  >
+                    <TableCell>{serviceType.name}</TableCell>
+                    <TableCell align="right">
+                      R$ {minPrice} - {maxPrice}
+                    </TableCell>
+                    <TableCell align="right">
+                      {moment(minDate).format('DD/MM/YYYY - HH:mm')} -{' '}
+                      {moment(maxDate).format('DD/MM/YYYY - HH:mm')}
+                    </TableCell>
+                    <TableCell align="right">{people}</TableCell>
+                    <TableCell align="right">
+                      <PendingIcon titleAccess="Pendente" />
+                    </TableCell>
+                    <TableCell align="right">
+                      <IconButton
+                        onClick={async () => {
+                          if (locked) return
+                          setLocked(true)
+                          setInterests(
+                            interests.map((interest) => {
+                              if (interest.id !== id) return interest
+                              return {
+                                ...interest,
+                                loading: true,
+                              }
+                            })
+                          )
+                          try {
+                            await fetch('interests/' + id, {
+                              method: 'DELETE',
+                              headers: {
+                                Authorization: `Bearer ${jwt}`,
+                              },
+                            })
+                            setInterests(
+                              interests.filter((interest) => interest.id !== id)
+                            )
+                          } catch (err) {
+                            console.error(err)
+                            if (err instanceof Error) setSnackbar(err.message)
+                            setInterests(
+                              interests.map((interest) => {
+                                if (interest.id !== id) return interest
+                                return {
+                                  ...interest,
+                                  loading: false,
+                                }
+                              })
+                            )
+                          }
+                          setLocked(false)
+                        }}
+                      >
+                        <DeleteIcon />
+                      </IconButton>
+                    </TableCell>
+                  </TableRow>
+                )
+              )}
+            </TableBody>
+          </Table>
+        </TableContainer>
+
         {formVisible ? (
-          <form onSubmit={handleSubmit(onSubmit)} className={st.form}>
+          <form
+            onSubmit={
+              locked ? (e) => e.preventDefault() : handleSubmit(onSubmit)
+            }
+            className={st.form}
+          >
             <TextField
               label="Tipo de serviço"
               variant="outlined"
@@ -184,7 +322,7 @@ export default function HomePage({ serviceTypes }: HomePageProps) {
               </Typography>
             )}
             <Button variant="contained" type="submit" className={st.button}>
-              {isSubmitting ? 'Enviando...' : 'Enviar'}
+              {isSubmitting ? 'Enviando...' : 'Adicionar'}
             </Button>
           </form>
         ) : (
@@ -211,7 +349,21 @@ interface InterestInputs {
   people: number
 }
 
+declare global {
+  interface Interest {
+    id: number
+    serviceType: ApiOption
+    minPrice: string
+    maxPrice: string
+    minDate: string
+    maxDate: string
+    people: number
+    match: null
+  }
+}
+
 interface HomePageProps {
+  interests: Interest[]
   serviceTypes: ApiOption[]
 }
 
@@ -221,8 +373,8 @@ export const getServerSideProps: GetServerSideProps<HomePageProps> = async (
   try {
     const jwt = getCookie('user-token', context)
 
-    const [_, serviceTypes] = await Promise.all([
-      fetch('users/me/interests', {
+    const [interests, serviceTypes] = await Promise.all([
+      fetch<Interest[]>('users/me/interests', {
         headers: {
           Authorization: `Bearer ${jwt}`,
         },
@@ -232,6 +384,7 @@ export const getServerSideProps: GetServerSideProps<HomePageProps> = async (
 
     return {
       props: {
+        interests,
         serviceTypes,
       },
     }

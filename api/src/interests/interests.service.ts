@@ -5,6 +5,7 @@ import { Interest } from './interest.entity'
 import { Repository } from 'typeorm'
 import { Match } from 'src/matches/match.entity'
 import { ValidationException } from 'src/helpers/validation-exception.helper'
+import { ServiceType } from 'src/service-types/service-type.entity'
 
 @Injectable()
 export class InterestsService {
@@ -61,6 +62,12 @@ export class InterestsService {
   find(cpf: string) {
     return this.interestsRepository
       .createQueryBuilder('interests')
+      .leftJoinAndMapOne(
+        'interests.serviceType',
+        ServiceType,
+        'service_types',
+        'service_types.id = interests.serviceType',
+      )
       .leftJoinAndMapOne(
         'interests.match',
         Match,
