@@ -5,7 +5,6 @@ const nextConfig = {
   output: 'standalone',
   reactStrictMode: true,
   trailingSlash: true,
-  plugins: ['next-stylus', 'stylus-proportional/next'],
 
   // Converte classes em camelCase
   webpack: (config) => {
@@ -31,10 +30,6 @@ const nextConfig = {
     })
     return config
   },
-
-  env: {
-    SITE_URL: '',
-  },
 }
 
-module.exports = withPlugins(nextConfig)
+module.exports = withPlugins({ plugins: ['next-stylus'], ...nextConfig })
