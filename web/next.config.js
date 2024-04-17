@@ -30,6 +30,10 @@ const nextConfig = {
     })
     return config
   },
+
+  env: {
+    API_URL_PUB: process.env.API_URL_PUB,
+  },
 }
 
 module.exports = withPlugins({ plugins: ['next-stylus'], ...nextConfig })

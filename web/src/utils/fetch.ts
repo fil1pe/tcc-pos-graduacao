@@ -2,7 +2,10 @@ export async function fetchData<TResponse>(
   path: string,
   config?: RequestInit
 ): Promise<TResponse> {
-  const response = await fetch('http://localhost:3000/' + path, config)
+  const response = await fetch(
+    `${process.env.API_URL || process.env.API_URL_PUB}/${path}`,
+    config
+  )
 
   let data: any = {}
   try {

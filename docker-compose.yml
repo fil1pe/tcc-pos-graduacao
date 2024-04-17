@@ -41,7 +41,10 @@ services:
       - "3000:3000"
     environment:
       DB_HOST: db
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      DB_PORT: "3306"
+      DB_USER: "root"
+      DB_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      DB_NAME: "dev"
       JWT_SECRET: ${JWT_SECRET}
 
   # App Next.js:
@@ -56,6 +59,10 @@ services:
       dockerfile: Dockerfile
     ports:
       - "8000:8000"
+    environment:
+      WATCHPACK_POLLING: "true"
+      API_URL: "http://api:3000"
+      API_URL_PUB: "http://localhost:3000"
 
 networks:
   default:
