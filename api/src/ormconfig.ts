@@ -1,5 +1,8 @@
 import { DataSourceOptions } from 'typeorm'
 import { join } from 'path'
+import { config as configEnv } from 'dotenv'
+
+configEnv()
 
 export const config: DataSourceOptions = {
   type: 'mysql',
