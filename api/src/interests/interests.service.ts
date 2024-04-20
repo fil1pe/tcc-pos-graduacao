@@ -1,4 +1,4 @@
-import { HttpException, Injectable } from '@nestjs/common'
+import { HttpException, Inject, Injectable } from '@nestjs/common'
 import { CreateInterestDto } from './create-interest.dto'
 import { InjectRepository } from '@nestjs/typeorm'
 import { Interest } from './interest.entity'
@@ -10,12 +10,16 @@ import { Establishment } from 'src/establishments/establishment.entity'
 import { City } from 'src/cities/city.entity'
 import { ValidationException } from 'src/helpers/validation-exception.helper'
 import { ServiceType } from 'src/service-types/service-type.entity'
+import { ClientProxy } from '@nestjs/microservices'
+import { lastValueFrom } from 'rxjs'
 
 @Injectable()
 export class InterestsService {
   constructor(
     @InjectRepository(Interest)
     private interestsRepository: Repository<Interest>,
+    @Inject('rabbit-mq-module')
+    private rmqClient: ClientProxy,
   ) {}
 
   // Cadastra interesse:
@@ -47,7 +51,7 @@ export class InterestsService {
         'A última data vem antes da primeira data',
       )
 
-    return this.interestsRepository.save({
+    const interest = await this.interestsRepository.save({
       serviceType: {
         id: serviceType,
       },
@@ -60,6 +64,15 @@ export class InterestsService {
         cpf,
       },
     })
+
+    // Envia para a fila do RabbitMQ:
+    lastValueFrom(
+      this.rmqClient.send('rabbit-mq-producer', {
+        id: interest.id,
+      }),
+    )
+
+    return interest
   }
 
   // Query de busca dos interesses do usuário:
