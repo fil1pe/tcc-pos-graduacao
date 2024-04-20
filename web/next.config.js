@@ -2,7 +2,6 @@ const withPlugins = require('next-with-plugins')
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  output: 'standalone',
   reactStrictMode: true,
   trailingSlash: true,
 
