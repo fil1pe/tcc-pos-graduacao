@@ -46,6 +46,7 @@ services:
       DB_PASSWORD: ${MYSQL_ROOT_PASSWORD}
       DB_NAME: "dev"
       JWT_SECRET: ${JWT_SECRET}
+      CORS_ORIGIN: ""
 
   # App Next.js:
   web:
