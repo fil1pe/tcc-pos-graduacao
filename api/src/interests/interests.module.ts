@@ -4,10 +4,12 @@ import { InterestsController } from './interests.controller'
 import { TypeOrmModule } from '@nestjs/typeorm'
 import { Interest } from './interest.entity'
 import { ClientsModule, Transport } from '@nestjs/microservices'
+import { Offer } from 'src/offers/offer.entity'
+import { Match } from 'src/matches/match.entity'
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Interest]),
+    TypeOrmModule.forFeature([Interest, Offer, Match]),
     ClientsModule.register([
       {
         name: 'rabbit-mq-module',

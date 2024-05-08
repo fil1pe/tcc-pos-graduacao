@@ -5,6 +5,7 @@ import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger'
 import { exceptionFactory } from './helpers/exception-factory.helper'
 import { useContainer } from 'class-validator'
 import { SeederService } from './seeder/seeder.service'
+import { Transport } from '@nestjs/microservices'
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
@@ -28,6 +29,17 @@ async function bootstrap() {
   const config = new DocumentBuilder().setTitle('API').build()
   const document = SwaggerModule.createDocument(app, config)
   SwaggerModule.setup('api', app, document)
+
+  // Conecta ao RabbitMQ para consumir filas:
+  await app.connectMicroservice({
+    transport: Transport.RMQ,
+    options: {
+      urls: [process.env.RMQ_URL],
+      queue: process.env.RMQ_QUEUE,
+      noAck: false,
+    },
+  })
+  await app.startAllMicroservices()
 
   await app.listen(3000)
 }

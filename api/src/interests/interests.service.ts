@@ -11,13 +11,16 @@ import { City } from 'src/cities/city.entity'
 import { ValidationException } from 'src/helpers/validation-exception.helper'
 import { ServiceType } from 'src/service-types/service-type.entity'
 import { ClientProxy } from '@nestjs/microservices'
-import { lastValueFrom } from 'rxjs'
 
 @Injectable()
 export class InterestsService {
   constructor(
     @InjectRepository(Interest)
     private interestsRepository: Repository<Interest>,
+    @InjectRepository(Offer)
+    private offersRepository: Repository<Offer>,
+    @InjectRepository(Match)
+    private matchesRepository: Repository<Match>,
     @Inject('rabbit-mq-module')
     private rmqClient: ClientProxy,
   ) {}
@@ -66,13 +69,62 @@ export class InterestsService {
     })
 
     // Envia para a fila do RabbitMQ:
-    lastValueFrom(
-      this.rmqClient.send('rabbit-mq-producer', {
+    this.rmqClient
+      .send('interest', {
         id: interest.id,
-      }),
-    )
+      })
+      .subscribe()
 
     return interest
+  }
+
+  // Gera match de acordo com interesse do usuário:
+  async match({ id }: { id: number }) {
+    const [interest] = (await this.interestsRepository
+      .createQueryBuilder('interests')
+      .leftJoinAndMapOne(
+        'interests.match',
+        Match,
+        'matches',
+        'matches.interest = interests.id',
+      )
+      .leftJoinAndMapOne(
+        'interests.serviceType',
+        ServiceType,
+        'service_types',
+        'service_types.id = interests.service_type',
+      )
+      .where('interests.id = :id', { id })
+      .getMany()) as (Interest & {
+      match: Match | null
+      serviceType: ServiceType
+    })[]
+    if (!interest || interest.match) return
+    const [offer] = await this.offersRepository
+      .createQueryBuilder('offers')
+      .leftJoin(Service, 'services', 'services.id = offers.service')
+      .leftJoin(Match, 'matches', 'matches.offer = offers.id')
+      .where('offers.min_people <= :people', { people: interest.people })
+      .andWhere('offers.max_people >= :people', { people: interest.people })
+      .andWhere('offers.date >= :minDate', { minDate: interest.minDate })
+      .andWhere('offers.date <= :maxDate', { maxDate: interest.maxDate })
+      .andWhere('services.price >= :minPrice', { minPrice: interest.minPrice })
+      .andWhere('services.price <= :maxPrice', { maxPrice: interest.maxPrice })
+      .andWhere('services.type = :serviceType', {
+        serviceType: interest.serviceType.id,
+      })
+      .andWhere('matches.offer IS NULL')
+      .getMany()
+    if (offer)
+      await this.matchesRepository.save({
+        offer,
+        interest,
+        reserved: false,
+      })
+    else
+      await this.interestsRepository.delete({
+        id: interest.id,
+      })
   }
 
   // Query de busca dos interesses do usuário:
