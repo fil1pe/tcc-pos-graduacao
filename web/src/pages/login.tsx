@@ -96,7 +96,7 @@ export default function LoginPage() {
                 Novo por aqui? Cadastre-se <Link href="/cadastro">aqui</Link>.
               </Typography>
               <Button variant="contained" type="submit">
-                {isSubmitting ? 'Carrgando...' : 'Entrar'}
+                {isSubmitting ? 'Carregando...' : 'Entrar'}
               </Button>
             </form>
           </Container>
