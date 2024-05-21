@@ -28,6 +28,9 @@ export class Interest {
   @Column()
   people: number
 
+  @Column({ default: 0 })
+  status: number
+
   @ManyToOne(() => User, {
     nullable: false,
     onDelete: 'CASCADE',

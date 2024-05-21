@@ -121,10 +121,7 @@ export class InterestsService {
         interest,
         reserved: false,
       })
-    else
-      await this.interestsRepository.delete({
-        id: interest.id,
-      })
+    else await this.updateStatus(id, 1)
   }
 
   // Query de busca dos interesses do usuário:
@@ -184,6 +181,11 @@ export class InterestsService {
     } catch {
       throw new NotFoundException()
     }
+  }
+
+  // Altera o valor do status de um interesse:
+  updateStatus(id: number, status: number) {
+    return this.interestsRepository.update({ id }, { status })
   }
 
   // Remove interesse do usuário:

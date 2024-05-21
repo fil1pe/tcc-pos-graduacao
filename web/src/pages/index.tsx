@@ -22,6 +22,7 @@ import BookmarkBorderIcon from '@mui/icons-material/BookmarkBorder'
 import BookmarkIcon from '@mui/icons-material/Bookmark'
 import DeleteIcon from '@mui/icons-material/Delete'
 import PendingIcon from '@mui/icons-material/Pending'
+import ErrorIcon from '@mui/icons-material/Error'
 import { fetch, formatDate } from '~/utils'
 import { FetchError } from '~/utils/fetch'
 import { useContext } from '~/hooks'
@@ -131,6 +132,7 @@ export default function HomePage({
                   people,
                   match,
                   loading,
+                  status,
                 }) => (
                   <TableRow
                     key={id}
@@ -165,6 +167,11 @@ export default function HomePage({
                           {match.offer.service.establishment.city.name},{' '}
                           {match.offer.service.establishment.city.uf}
                         </>
+                      ) : status ? (
+                        <ErrorIcon
+                          titleAccess="Nenhum serviço encontrado"
+                          style={{ color: '#d32f2f' }}
+                        />
                       ) : (
                         <PendingIcon titleAccess="Pendente" />
                       )}
@@ -463,6 +470,7 @@ declare global {
     maxDate: string
     people: number
     match: Match | null
+    status: number
   }
 }
 
