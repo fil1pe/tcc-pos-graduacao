@@ -11,6 +11,7 @@ import { City } from 'src/cities/city.entity'
 import { ValidationException } from 'src/helpers/validation-exception.helper'
 import { ServiceType } from 'src/service-types/service-type.entity'
 import { ClientProxy } from '@nestjs/microservices'
+import { User } from 'src/users/user.entity'
 
 @Injectable()
 export class InterestsService {
@@ -94,6 +95,13 @@ export class InterestsService {
         'service_types',
         'service_types.id = interests.service_type',
       )
+      .leftJoinAndMapOne(
+        'interests.user',
+        User,
+        'users',
+        'users.cpf = interests.user',
+      )
+      .leftJoinAndMapOne('users.city', City, 'cities', 'cities.id = users.city')
       .where('interests.id = :id', { id })
       .getMany()) as (Interest & {
       match: Match | null
@@ -104,6 +112,11 @@ export class InterestsService {
       .createQueryBuilder('offers')
       .leftJoin(Service, 'services', 'services.id = offers.service')
       .leftJoin(Match, 'matches', 'matches.offer = offers.id')
+      .leftJoin(
+        Establishment,
+        'establishments',
+        'establishments.cnpj = services.establishment',
+      )
       .where('offers.min_people <= :people', { people: interest.people })
       .andWhere('offers.max_people >= :people', { people: interest.people })
       .andWhere('offers.date >= :minDate', { minDate: interest.minDate })
@@ -113,6 +126,7 @@ export class InterestsService {
       .andWhere('services.type = :serviceType', {
         serviceType: interest.serviceType.id,
       })
+      .andWhere('establishments.city = :city', { city: interest.user.city.id })
       .andWhere('matches.offer IS NULL')
       .getMany()
     if (offer)
