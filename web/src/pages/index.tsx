@@ -78,7 +78,9 @@ export default function HomePage({
           match: null,
         },
       ])
-      setSnackbar('Interesse registrado com sucesso')
+      setSnackbar(
+        'Interesse registrado com sucesso. É necessário atualizar a página para obter o status mais recente.'
+      )
       setFormVisible(false)
       reset()
     } catch (err) {
